@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product 2 Plan · Evolution (build in parallel)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--bg:#faf8f4;--card:#fff;--ink:#1c1c1e;--muted:#6b6a66;--line:#e7e3da;--violet:#5b3df5;--violet-soft:#efeaff;--blue:#2563c9;--blue-soft:#e8f0fe;--green:#0a8f5b;--green-soft:#e6f5ee;--amber:#b7791f;--amber-soft:#fbf2dd;--rose:#c2255c;--rose-soft:#fce7ef;--teal:#0d9488;--teal-soft:#e0f2f0;--shadow:0 1px 2px rgba(20,18,12,.04),0 6px 22px rgba(20,18,12,.06)}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans","Noto Sans SC",system-ui,-apple-system,sans-serif;line-height:1.6;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 22px 90px}
+  header.hero{background:linear-gradient(135deg,#23106b 0%,#5b3df5 50%,#0d9488 100%);color:#fff;border-radius:22px;padding:36px 32px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:270px;height:270px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);border-radius:50%}
+  .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+  header.hero h1{font-size:29px;line-height:1.16;margin:12px 0 8px;font-weight:800}
+  header.hero p{margin:6px 0 0;font-size:16px;max-width:790px;opacity:.95}
+  .pillrow{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:6px 13px;border-radius:999px;font-size:13px;font-weight:600}
+  h2{font-size:22px;font-weight:800;margin:46px 0 6px}h2 .num{color:var(--violet)}
+  h3{font-size:18px;font-weight:700;margin:22px 0 8px}
+  .lead{color:var(--muted);margin:2px 0 16px;font-size:15.5px}
+  p{margin:10px 0}a{color:var(--violet);text-decoration:none;border-bottom:1px solid rgba(91,61,245,.25)}
+  code{background:#f1eee7;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;color:#3a2f6e}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+  .toc a{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;color:var(--ink)}
+  .callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:14.5px}
+  .c-violet{background:var(--violet-soft);border:1px solid #d9ccff}.c-teal{background:var(--teal-soft);border:1px solid #b6e0da}.c-green{background:var(--green-soft);border:1px solid #bfe6d3}.c-amber{background:var(--amber-soft);border:1px solid #efdcb0}.c-blue{background:var(--blue-soft);border:1px solid #c3d8fb}
+  .callout .h{display:block;font-weight:800;margin-bottom:4px;font-size:14px;letter-spacing:.02em;text-transform:uppercase}
+  .c-violet .h{color:var(--violet)}.c-teal .h{color:var(--teal)}.c-green .h{color:var(--green)}.c-amber .h{color:var(--amber)}.c-blue .h{color:var(--blue)}
+  .mermaid{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0;text-align:center;box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f3f0ea;font-weight:700;font-size:12.5px}tr:last-child td{border-bottom:none}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}.wrap{padding:26px 15px 70px}header.hero h1{font-size:23px}}
+  .phone{max-width:320px;margin:0 auto;background:#0f0f0f;border-radius:26px;padding:10px;box-shadow:var(--shadow)}
+  .phone .scr{background:#e9e7e1;border-radius:18px;padding:13px;font-size:13px}
+  .bub{background:#fff;border-radius:12px;padding:8px 11px;margin:7px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}.bub.bot{margin-right:30px}.link{color:#2563c9;text-decoration:underline}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}.t-demo{background:var(--green);color:#fff}.t-p2{background:var(--violet);color:#fff}.t-road{background:#efe9df;color:#7a6f59}
+  .layer{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}@media(max-width:680px){.layer{grid-template-columns:1fr}}
+  .lay{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .lay .k{font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--violet);margin-bottom:3px}
+  .lay h4{margin:0 0 6px;font-size:16px}
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+  @media(max-width:820px){.phases{grid-template-columns:1fr 1fr}}@media(max-width:480px){.phases{grid-template-columns:1fr}}
+  .ph{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:4px solid var(--violet)}
+  .ph:nth-child(2){border-top-color:var(--teal)}.ph:nth-child(3){border-top-color:var(--amber)}.ph:nth-child(4){border-top-color:#9fb0c9}
+  .ph .when{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .ph h4{margin:3px 0 6px;font-size:15px}.ph ul{margin:0;padding-left:16px;font-size:13px}.ph li{margin:3px 0}
+  .foot{margin-top:46px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  ul{margin:6px 0 6px 2px;padding-left:18px}li{margin:4px 0}
+  .srcgrid{font-size:12.5px;columns:2;column-gap:24px}@media(max-width:760px){.srcgrid{columns:1}}.srcgrid p{margin:4px 0;break-inside:avoid}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Product 2 of 2 · Build in parallel</div>
+  <h1>Evolution: your week, synthesized, and a podcast you can argue with</h1>
+  <p>Every input you consume and output you produce flows into one place. Each week it writes you a review of what you learned, then turns that review into audio you can listen to on a walk and interrupt to ask questions out loud, in English or 中文. Not a demo requirement, but the thing you will actually use. Cloud-first on Modal.</p>
+  <div class="pillrow"><span class="pill">🧠 Weekly review</span><span class="pill">🎧 Listen on a walk</span><span class="pill">🎙️ Ask out loud (bilingual)</span><span class="pill">🔒 You own it</span></div>
+</header>
+<div class="toc"><a href="#vision">Vision</a><a href="#sources">Sources</a><a href="#arch">Architecture</a><a href="#review">The weekly review</a><a href="#audio">Listen + ask (the audio layer)</a><a href="#notion">Notion views</a><a href="#road">Roadmap</a><a href="#notes">Honest notes</a><a href="#open">Open decisions</a></div>
+
+<h2 id="vision"><span class="num">1.</span> The vision</h2>
+<div class="callout c-violet"><span class="h">The idea in one line</span>
+  Instead of you doing the weekly reflection by hand, the system gathers everything you read, watched, searched, coded, and learned, and hands you back a synthesis you can <b>read in Notion, hear as a podcast, and question by voice while you walk.</b> Your <a href="https://app.notion.com/p/Entertainment-3f9442f52cf7824baace81e83d81316f">Entertainment DB</a> and your existing Notion weekly journal are part of the raw material, not replaced by it.
+</div>
+<p>Closest existing product is <b>Exist.io</b> (it aggregates GitHub, read-later, and media into weekly correlations), but it has no Notion output, no AI-coding-session capture, and no audio. Nobody turns a personal learning log into a podcast you can interrogate. That is the white space, and it is very you.</p>
+
+<h2 id="sources"><span class="num">2.</span> What feeds it (honest, researched)</h2>
+<table>
+  <tr><th>Source</th><th>In / Out</th><th>How we get it</th><th>Phase</th></tr>
+  <tr><td><b>Your Notion weekly journal</b></td><td>Reflection</td><td>Notion API reads your existing weekly journal pages</td><td><span class="tag t-p2">P2 core</span></td></tr>
+  <tr><td><b>GitHub</b> (commits, PRs)</td><td>Output</td><td>Real API (poll hourly, 30-day window)</td><td><span class="tag t-p2">P2 core</span></td></tr>
+  <tr><td><b>Vault</b> (journals, patterns, corrections, session-logs)</td><td>Output</td><td>Private git repo → Modal clone (you commit hourly already)</td><td><span class="tag t-p2">P2 core</span></td></tr>
+  <tr><td><b>YouTube + articles</b></td><td>Input</td><td>Drop the link to the bot → Entertainment / Reading DB (no API exists for history)</td><td><span class="tag t-p2">P2 core</span></td></tr>
+  <tr><td><b>Writing / newsletters</b></td><td>Output</td><td>Vault git / Notion</td><td><span class="tag t-road">Later</span></td></tr>
+  <tr><td><b>Google search</b> history</td><td>Input</td><td>No API. Drop-link the ones that matter, or Takeout cold-archive</td><td><span class="tag t-road">Later</span></td></tr>
+  <tr><td><b>Browser</b> history</td><td>Input</td><td>Fragile (extension / locked SQLite). Defer</td><td><span class="tag t-road">Later</span></td></tr>
+</table>
+
+<h2 id="arch"><span class="num">3.</span> Architecture</h2>
+<div class="mermaid">
+flowchart LR
+  subgraph SRC["📥 Sources"]
+    GH["GitHub API"]; VG["Vault (private git)"]; DL["Dropped links + Notion weekly journal"]
+  end
+  GH --> CR; VG --> CR; DL --> CR
+  subgraph CLOUD["☁️ Modal"]
+    CR["Weekly cron"] --> SY["Synthesis brain<br/>cluster → 2-6 themes + recurring lesson"]
+    CO["Coach (during week)<br/>just-in-time nudges"]
+  end
+  SY --> NO[("🗄️ Notion: Weekly Review + Patterns")]
+  SY --> NB["🎧 NotebookLM podcast<br/>(via your MCP)"]
+  SY --> RT["🎙️ Realtime voice agent<br/>(grounded on the synthesis)"]
+  NB --> PH["📱 Listen on a walk"]; RT --> PH; CO --> PH
+  classDef c fill:#efeaff,stroke:#5b3df5,color:#23106b;classDef n fill:#0f0f0f,stroke:#0f0f0f,color:#fff;
+  class CR,SY,CO c; class NO n;
+</div>
+
+<h2 id="review"><span class="num">4.</span> The weekly review (approach A + C)</h2>
+<div class="grid2">
+  <div>
+    <h3>A · The weekly mirror</h3>
+    <p>Every Sunday a Modal cron reads the week from every source and writes a Notion "Weekly Review" page plus a phone digest: what you learned, the pattern that emerged, the mistake that became a lesson, and what you keep relearning. Capped at 2 to 6 themes plus one recurring-lesson callback, so it is signal, not noise (the same "3+ occurrences = a pattern" rule your vault already uses, which news-digest engines also use).</p>
+    <h3>C · The proactive coach</h3>
+    <p>During the week, not just Sundays, it surfaces the right past lesson before you need it: "you are starting a phase-gate review; the last 3 skips caused regressions, want the checklist?"</p>
+  </div>
+  <div>
+    <div class="phone"><div class="scr">
+      <div class="bub bot"><b>Your week 🧠</b><br>14 sessions · 5 corrections · 1 new pattern<br>📥 9 AI-agent videos · 6 articles · 1 weekly-journal entry<br><br><b>Promoted to a pattern:</b> "re-ground in the plan before asserting" (3rd time)<br><b>You keep relearning:</b> verify the deploy profile (4th)<br><span class="link">→ Read in Notion</span> · <span class="link">🎧 Listen</span></div>
+      <div class="bub bot" style="background:#efeaff"><b>⚡ Just-in-time:</b> new concept this week: "x402 payments." Want a 3-min explainer you can question on your walk?</div>
+    </div></div>
+  </div>
+</div>
+
+<h2 id="audio"><span class="num">5.</span> Listen, then ask out loud (the part you've wanted)</h2>
+<p class="lead">The honest research result: NotebookLM's "Join and ask" is real and verbal, but English-only, manual, and not automatable. So we use a two-layer design from one synthesis.</p>
+<div class="layer">
+  <div class="lay"><div class="k">Layer 1 · Listen</div><h4>🎧 NotebookLM podcast</h4>
+    <p>Your weekly synthesis becomes a NotebookLM Audio Overview (Deep Dive, focused on "this week"), generated automatically through the <b>NotebookLM MCP you already have</b>: create notebook → add the synthesis → make audio → download the mp3 to your phone. Supports <b>Chinese</b>. This is the "press play on a walk" layer.</p></div>
+  <div class="lay"><div class="k">Layer 2 · Ask</div><h4>🎙️ OpenAI Realtime voice agent</h4>
+    <p>For interrupting and asking out loud, a small Realtime voice agent grounded on the same synthesis (you have the key). Real-time, barge-in, <b>bilingual EN + 中文</b>, fully private, runs on your phone over WebRTC. About $0.05 to $0.10 a minute with caching. This is the "wait, explain x402 again" layer that NotebookLM cannot automate.</p></div>
+</div>
+<div class="mermaid">
+flowchart LR
+  S["Weekly synthesis (one source of truth)"] --> NB["🎧 NotebookLM podcast"]
+  S --> RA["🎙️ Realtime agent"]
+  NB --> W["🚶 You, walking: press play"]
+  W -->|"wait, what's x402?"| RA
+  RA -->|answers from your week, EN or 中文| W
+  classDef c fill:#e0f2f0,stroke:#0d9488,color:#0d3b34;class NB,RA c;
+</div>
+<div class="callout c-blue"><span class="h">Why this matches your goal exactly</span>
+  You wanted: hear a review, and whenever a new concept shows up, ask about it verbally to understand it deeply, hands-free on a walk. Layer 1 gives you the produced episode; Layer 2 gives you the conversation. If you want one tool, the Realtime agent alone can both narrate and answer, NotebookLM just makes a nicer episode.</div>
+
+<h2 id="notion"><span class="num">6.</span> The Notion "Evolution" board</h2>
+<ul>
+  <li><b>Weekly Review pages</b> (auto-generated, one per week) and a running <b>"state of me."</b></li>
+  <li><b>Sessions gallery</b> + <b>timeline</b>, watch the work grow.</li>
+  <li><b>Patterns database</b>: each lesson, its occurrence count, first and last seen.</li>
+  <li><b>Inputs log</b> (your dropped videos and articles) linked to the week's themes.</li>
+  <li><b>Wrapped cards</b> (streaks, top themes, your builder persona), shareable.</li>
+</ul>
+
+<h2 id="road"><span class="num">7.</span> Roadmap (parallel to Receipts, not demo-gated)</h2>
+<div class="phases">
+  <div class="ph"><div class="when">Phase 1</div><h4>Weekly review, read + listen</h4><ul><li>Sources: GitHub + vault git + weekly journal + dropped links</li><li>Sunday synthesis → Notion page + phone digest</li><li>NotebookLM podcast via MCP</li></ul></div>
+  <div class="ph"><div class="when">Phase 2</div><h4>Ask out loud</h4><ul><li>Realtime voice agent on the synthesis</li><li>Bilingual EN + 中文</li><li>Proactive coach (C) nudges</li></ul></div>
+  <div class="ph"><div class="when">Phase 3</div><h4>Cross-source insight</h4><ul><li>"Consumed X → produced Y" links</li><li>Search history (cold archive)</li><li>Monthly + yearly Wrapped</li></ul></div>
+  <div class="ph"><div class="when">Phase 4</div><h4>Full life-OS</h4><ul><li>Browser, calendar, health streams</li><li>Own-your-data polish</li><li>Maybe productize</li></ul></div>
+</div>
+
+<h2 id="notes"><span class="num">8.</span> Honest notes</h2>
+<table>
+  <tr><th>Topic</th><th>The real consideration</th></tr>
+  <tr><td>Vault to cloud</td><td>Read the vault from a <b>private git repo</b> (you commit hourly), not from your B2 restic backup (that is encrypted and meant for recovery, keep it as is).</td></tr>
+  <tr><td>NotebookLM limits</td><td>Its interactive "Join" is English-only, manual, and has no API. The audio-generation MCP is unofficial (could break if Google changes internals). So we treat the podcast as the nice-to-have and the Realtime agent as the dependable ask-layer.</td></tr>
+  <tr><td>Insight needs time</td><td>Cross-source correlations ("you read about agents, then shipped agent code") need a few weeks of data before they are meaningful. Early weeks = simple, honest summaries.</td></tr>
+  <tr><td>Privacy</td><td>It is your most personal data. Everything stays in your Notion + your cloud, nothing sold, your keys.</td></tr>
+</table>
+
+<h2 id="open"><span class="num">9.</span> Open decisions</h2>
+<ul>
+  <li><b>Vault scope to git:</b> whole vault, or just <code>learning-journals / patterns / corrections / session-logs</code>? (Lean: just those.)</li>
+  <li><b>Weekly journal:</b> point me to your Notion weekly journal page and share it with the integration.</li>
+  <li><b>Audio default language:</b> English, Chinese, or pick per week?</li>
+  <li><b>Listen tool:</b> NotebookLM podcast + Realtime agent (both), or start with just the Realtime agent (one tool that narrates and answers)?</li>
+</ul>
+<div class="callout c-green"><span class="h">Sequencing</span> Build Receipts first (the demo), then Product 2 on the same Modal + Telegram + Notion rails. The synthesis brain and the audio layer are the only net-new pieces. Then it runs through the planning pipeline and the review gate like everything else.</div>
+
+<h2 style="font-size:18px">Sources</h2>
+<div class="srcgrid">
+  <p>· <a href="https://support.google.com/notebooklm/answer/16212820?hl=en">NotebookLM audio + interactive (limits)</a></p>
+  <p>· <a href="https://masterconcept.ai/learning-articles/googleworkspace/notebooklm-now-supports-chinese-a-look-at-the-six-major-new-features-of-studio/">NotebookLM Chinese support</a></p>
+  <p>· <a href="https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api-audio-overview">NotebookLM Enterprise API (no audio download)</a></p>
+  <p>· <a href="https://github.com/jacob-bd/notebooklm-mcp-cli">NotebookLM MCP (studio_create / download)</a></p>
+  <p>· <a href="https://developers.openai.com/api/docs/guides/realtime">OpenAI Realtime (voice Q&A, barge-in)</a></p>
+  <p>· <a href="https://docs.github.com/en/rest/activity/events">GitHub Events API</a></p>
+  <p>· <a href="https://restic.readthedocs.io/en/stable/design.html">restic encrypted format (why git not B2)</a></p>
+  <p>· <a href="https://exist.io/apps-data-syncing/">Exist.io (closest comparable)</a></p>
+  <p>· <a href="https://modal.com/docs/guide/cron">Modal cron</a></p>
+  <p>· <a href="https://www.inkandswitch.com/essay/local-first/">Local-first / own-your-data</a></p>
+</div>
+
+<div class="foot">Product 2 plan · 2026-06-04 · <code>wiki/ai-ml/product-2-evolution-plan.html</code><br>Sibling doc: <code>product-1-receipts-plan.html</code> · Mockups are illustrative.</div>
+</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{fontFamily:'Plus Jakarta Sans, sans-serif',primaryColor:'#efeaff',primaryBorderColor:'#5b3df5',primaryTextColor:'#23106b',lineColor:'#9b8fce'}});</script>
+</body>
+</html>
