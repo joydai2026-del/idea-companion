@@ -110,6 +110,15 @@ TOOLS = [
     },
 ]
 
+def _para(text):
+    """A Notion paragraph block (capped under the 2000-char rich-text limit)."""
+    return {"object": "block", "type": "paragraph", "paragraph": {"rich_text": [{"type": "text", "text": {"content": (text or "")[:1900]}}]}}
+
+
+def _has_cjk(text):
+    return any("一" <= ch <= "鿿" for ch in (text or ""))
+
+
 app = modal.App("idea-companion")
 
 image = (
@@ -121,7 +130,10 @@ image = (
 
 @app.function(
     image=image,
-    secrets=[modal.Secret.from_name("idea-companion-smoke")],
+    secrets=[
+        modal.Secret.from_name("idea-companion-smoke"),
+        modal.Secret.from_name("idea-companion-notion"),
+    ],
     timeout=120,
 )
 @modal.asgi_app()
@@ -194,24 +206,89 @@ def web():
 
     @api.post("/save")
     async def save(request: Request):
-        """Receive a finished conversation (full transcript + the voice-issued requests)
-        and persist it. The Notion write lands once NOTION_API_TOKEN + the DB IDs are set
-        (it will be live-verified with the real token before we claim it works)."""
+        """Persist a finished walk: one Conversations row (transcript in the page body)
+        + one Reports row per voice-issued request (Status=Requested, which the worker
+        turns into a finished report)."""
+        from datetime import datetime, timezone
+
         try:
             body = await request.json()
         except Exception:
             return JSONResponse({"ok": False, "error": "bad json"}, status_code=400, headers=no_store)
-        transcript = body.get("transcript", []) or []
-        reqs = body.get("requests", []) or []
-        # Log now so the capture path is verifiable in Modal logs before Notion is wired.
-        print(f"[save] turns={len(transcript)} requests={len(reqs)} reqs={reqs}")
-        notion_ready = bool(os.environ.get("NOTION_API_TOKEN") and os.environ.get("IC_CONVERSATIONS_DB"))
+        transcript = body.get("transcript") or []
+        reqs = body.get("requests") or []
+        started_at = body.get("started_at")
+        print(f"[save] turns={len(transcript)} requests={len(reqs)}")
+
+        token = os.environ.get("NOTION_API_TOKEN")
+        conv_db = os.environ.get("IC_CONVERSATIONS_DB")
+        rep_db = os.environ.get("IC_REPORTS_DB")
+        if not (token and conv_db):
+            return JSONResponse(
+                {"ok": True, "notion": "pending (token/db not set yet)", "turns": len(transcript), "requests": len(reqs)},
+                headers=no_store,
+            )
+
+        nver = os.environ.get("NOTION_VERSION", "2022-06-28")
+        nheaders = {"Authorization": f"Bearer {token}", "Notion-Version": nver, "Content-Type": "application/json"}
+        try:
+            dt = datetime.fromtimestamp(started_at / 1000, tz=timezone.utc) if started_at else datetime.now(timezone.utc)
+        except Exception:
+            dt = datetime.now(timezone.utc)
+        date_str = dt.strftime("%Y-%m-%d")
+        title = "Walk · " + dt.strftime("%Y-%m-%d %H:%M UTC")
+        first_user = next((t.get("text", "") for t in transcript if t.get("role") == "you"), "")
+        summary = first_user[:180] or f"{len(transcript)} turns"
+        lang = "中文" if any(_has_cjk(t.get("text", "")) for t in transcript) else "EN"
+        blocks = [_para(("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "")) for t in transcript[:90]]
+
+        conv_props = {
+            "Title": {"title": [{"text": {"content": title}}]},
+            "Date": {"date": {"start": date_str}},
+            "Summary": {"rich_text": [{"text": {"content": summary}}]},
+            "Requests": {"number": len(reqs)},
+            "Language": {"select": {"name": lang}},
+        }
+        conv_url, report_urls, errors = None, [], []
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(
+                "https://api.notion.com/v1/pages",
+                headers=nheaders,
+                json={"parent": {"database_id": conv_db}, "properties": conv_props, "children": blocks},
+            )
+            if r.status_code >= 400:
+                errors.append("conversation: " + r.text[:300])
+            else:
+                conv_url = r.json().get("url")
+            if rep_db:
+                for rq in reqs:
+                    typ = rq.get("type", "report")
+                    topic = (rq.get("topic") or rq.get("note") or "(untitled)")[:200]
+                    props = {
+                        "Topic": {"title": [{"text": {"content": topic}}]},
+                        "Type": {"select": {"name": typ if typ in ("report", "infographic", "insight") else "report"}},
+                        "Status": {"select": {"name": "Requested"}},
+                        "Created": {"date": {"start": date_str}},
+                    }
+                    if rq.get("depth") in ("quick", "deep"):
+                        props["Depth"] = {"select": {"name": rq["depth"]}}
+                    rr = await client.post(
+                        "https://api.notion.com/v1/pages",
+                        headers=nheaders,
+                        json={"parent": {"database_id": rep_db}, "properties": props},
+                    )
+                    if rr.status_code >= 400:
+                        errors.append(f"report '{topic[:30]}': " + rr.text[:200])
+                    else:
+                        report_urls.append(rr.json().get("url"))
+
         return JSONResponse(
             {
-                "ok": True,
-                "turns": len(transcript),
-                "requests": len(reqs),
-                "notion": "written" if notion_ready else "pending (token/db not set yet)",
+                "ok": not errors,
+                "notion": "written" if not errors else "partial/failed",
+                "conversation_url": conv_url,
+                "reports": report_urls,
+                "errors": errors,
             },
             headers=no_store,
         )
