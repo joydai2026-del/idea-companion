@@ -628,6 +628,19 @@ def web():
                             except Exception as exc:
                                 print("[save] spawn failed:", exc)
 
+        # Immediate reassurance ping so JJ knows the report is on its way (she is not looking
+        # at the screen on a walk). The worker pings again with the link when it is ready.
+        pending = [
+            (rq.get("topic") or rq.get("note") or "your topic")
+            for rq in reqs
+            if rq.get("type", "report") in ("report", "infographic")
+        ]
+        if pending:
+            if len(pending) == 1:
+                _telegram_ping(f"📝 Got it. I'm preparing your report on “{pending[0]}” now. It'll be in your Notion in about a minute. Sit tight, I'll ping you the moment it's ready.")
+            else:
+                _telegram_ping("📝 Got it. I'm preparing " + str(len(pending)) + " reports now (" + "; ".join(pending[:5]) + "). They'll be in your Notion shortly. I'll ping you as each one is ready.")
+
         return JSONResponse(
             {
                 "ok": not errors,
