@@ -119,6 +119,84 @@ def _has_cjk(text):
     return any("一" <= ch <= "鿿" for ch in (text or ""))
 
 
+def _md_to_blocks(md):
+    """Minimal Markdown -> Notion blocks (headings, bullets, numbered, paragraphs)."""
+    def rt(text):
+        return [{"type": "text", "text": {"content": text.replace("**", "")[:1900]}}]
+
+    blocks = []
+    for raw in (md or "").split("\n"):
+        s = raw.strip()
+        if not s:
+            continue
+        if s.startswith("### "):
+            blocks.append({"object": "block", "type": "heading_3", "heading_3": {"rich_text": rt(s[4:])}})
+        elif s.startswith("## "):
+            blocks.append({"object": "block", "type": "heading_2", "heading_2": {"rich_text": rt(s[3:])}})
+        elif s.startswith("# "):
+            blocks.append({"object": "block", "type": "heading_1", "heading_1": {"rich_text": rt(s[2:])}})
+        elif s[:2] in ("- ", "* "):
+            blocks.append({"object": "block", "type": "bulleted_list_item", "bulleted_list_item": {"rich_text": rt(s[2:])}})
+        elif len(s) > 2 and s[0].isdigit() and s[1] in ".)":
+            blocks.append({"object": "block", "type": "numbered_list_item", "numbered_list_item": {"rich_text": rt(s[2:].lstrip(" .)"))}})
+        else:
+            blocks.append({"object": "block", "type": "paragraph", "paragraph": {"rich_text": rt(s)}})
+    return blocks[:180]
+
+
+def _no_em_dash(s):
+    """Deterministically enforce JJ's no-em-dash rule on generated output (the model
+    ignores the instruction sometimes). Em dash -> comma; en dash -> hyphen."""
+    s = s or ""
+    for dash in ("—", "―"):  # em dash, horizontal bar
+        s = s.replace(" " + dash + " ", ", ").replace(dash, ", ")
+    s = s.replace("–", "-")  # en dash -> hyphen
+    while "  " in s:
+        s = s.replace("  ", " ")
+    return s.replace(" ,", ",")
+
+
+def _generate_report(topic, depth, context_text):
+    """Write the report body with an OpenAI model. Knowledge-based for v1 (fast, reliable);
+    web-search grounding is a later enhancement."""
+    import httpx
+
+    key = os.environ["OPENAI_API_KEY"]
+    model = os.environ.get("IC_REPORT_MODEL", "gpt-4o")
+    span = "a thorough but accessible deep dive (about 500-700 words)" if depth == "deep" else "a concise summary (about 250 words)"
+    system = (
+        "You are a sharp tutor writing a follow-up learning report for a smart builder and "
+        "entrepreneur after a walking conversation. Write clear Markdown: a one-line intro, then "
+        "2 to 4 '##' sections, with bullet points where useful. Be concrete, use an analogy when it "
+        "helps, no fluff, no emojis, and never use em dashes."
+    )
+    user = f"Topic to write up: {topic}\nLength: {span}.\n"
+    if context_text:
+        user += f"\nContext from our walk (for relevance, do not quote verbatim):\n{context_text[:1500]}\n"
+    user += "\nWrite the report now in Markdown."
+    r = httpx.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        json={"model": model, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.6},
+        timeout=120,
+    )
+    r.raise_for_status()
+    return _no_em_dash(r.json()["choices"][0]["message"]["content"])
+
+
+def _telegram_ping(text):
+    import httpx
+
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat = os.environ.get("IC_OWNER_CHAT_ID")
+    if not (tok and chat):
+        return
+    try:
+        httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": chat, "text": text}, timeout=20)
+    except Exception as exc:
+        print("[worker] telegram err:", exc)
+
+
 app = modal.App("idea-companion")
 
 image = (
@@ -128,14 +206,14 @@ image = (
 )
 
 
-@app.function(
-    image=image,
-    secrets=[
-        modal.Secret.from_name("idea-companion-smoke"),
-        modal.Secret.from_name("idea-companion-notion"),
-    ],
-    timeout=120,
-)
+SECRETS = [
+    modal.Secret.from_name("idea-companion-smoke"),
+    modal.Secret.from_name("idea-companion-notion"),
+    modal.Secret.from_name("idea-companion-telegram"),
+]
+
+
+@app.function(image=image, secrets=SECRETS, timeout=120)
 @modal.asgi_app()
 def web():
     import httpx
@@ -280,7 +358,22 @@ def web():
                     if rr.status_code >= 400:
                         errors.append(f"report '{topic[:30]}': " + rr.text[:200])
                     else:
-                        report_urls.append(rr.json().get("url"))
+                        rj = rr.json()
+                        report_urls.append(rj.get("url"))
+                        ctx = "\n".join(
+                            ("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "") for t in transcript
+                        )[:1800]
+                        try:
+                            process_report.spawn(
+                                report_id=rj.get("id"),
+                                report_url=rj.get("url"),
+                                topic=topic,
+                                depth=rq.get("depth") or "deep",
+                                typ=props["Type"]["select"]["name"],
+                                context_text=ctx,
+                            )
+                        except Exception as exc:
+                            print("[save] spawn failed:", exc)
 
         return JSONResponse(
             {
@@ -294,3 +387,52 @@ def web():
         )
 
     return api
+
+
+@app.function(image=image, secrets=SECRETS, timeout=600)
+def process_report(report_id, report_url, topic, depth, typ, context_text):
+    """Background worker: research the request, write the finished report into the Notion
+    page body, flip Status to Ready, and ping JJ on Telegram. Spawned by /save the moment a
+    walk ends, so the report is ready by the time she sits down. This is the reliable Modal
+    floor; the native Notion agent is validated in parallel."""
+    import httpx
+
+    token = os.environ["NOTION_API_TOKEN"]
+    nver = os.environ.get("NOTION_VERSION", "2022-06-28")
+    nh = {"Authorization": f"Bearer {token}", "Notion-Version": nver, "Content-Type": "application/json"}
+
+    def set_status(s):
+        try:
+            httpx.patch(
+                f"https://api.notion.com/v1/pages/{report_id}",
+                headers=nh,
+                json={"properties": {"Status": {"select": {"name": s}}}},
+                timeout=30,
+            )
+        except Exception as exc:
+            print("[worker] status err:", exc)
+
+    def append(blocks):
+        for i in range(0, len(blocks), 90):
+            httpx.patch(
+                f"https://api.notion.com/v1/blocks/{report_id}/children",
+                headers=nh,
+                json={"children": blocks[i:i + 90]},
+                timeout=60,
+            )
+
+    print(f"[worker] {typ} '{topic}' depth={depth}")
+    set_status("In progress")
+    try:
+        if typ == "insight":
+            append([_para(topic)])
+        else:
+            md = _generate_report(topic, depth, context_text)
+            append(_md_to_blocks(md))
+        set_status("Ready")
+        label = "deep dive" if depth == "deep" else "summary"
+        _telegram_ping(f"\U0001f4d3 Ready: your {label} on “{topic}” is in your Notion.\n{report_url}")
+    except Exception as exc:
+        print("[worker] error:", exc)
+        set_status("Requested")
+        _telegram_ping(f"⚠️ I hit a snag preparing “{topic}”. I'll retry it.")
