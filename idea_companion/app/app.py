@@ -136,9 +136,21 @@ def _has_cjk(text):
 
 
 def _md_to_blocks(md):
-    """Minimal Markdown -> Notion blocks (headings, bullets, numbered, paragraphs)."""
+    """Minimal Markdown -> Notion blocks (headings, bullets, numbered, paragraphs).
+    Parses [label](url) into clickable Notion links so report Sources are tappable."""
+    import re
+
     def rt(text):
-        return [{"type": "text", "text": {"content": text.replace("**", "")[:1900]}}]
+        text = (text or "").replace("**", "")
+        parts, pos = [], 0
+        for m in re.finditer(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", text):
+            if m.start() > pos:
+                parts.append({"type": "text", "text": {"content": text[pos:m.start()][:1900]}})
+            parts.append({"type": "text", "text": {"content": m.group(1)[:1900], "link": {"url": m.group(2)}}})
+            pos = m.end()
+        if pos < len(text):
+            parts.append({"type": "text", "text": {"content": text[pos:][:1900]}})
+        return parts or [{"type": "text", "text": {"content": ""}}]
 
     blocks = []
     for raw in (md or "").split("\n"):
@@ -173,31 +185,48 @@ def _no_em_dash(s):
 
 
 def _generate_report(topic, depth, context_text):
-    """Write the report body with an OpenAI model. Knowledge-based for v1 (fast, reliable);
-    web-search grounding is a later enhancement."""
+    """Write the report body with web-grounded search (gpt-4o-search-preview) so recent facts,
+    models, benchmarks, rankings, and numbers are CURRENT and cited, not hallucinated."""
     import httpx
 
     key = os.environ["OPENAI_API_KEY"]
-    model = os.environ.get("IC_REPORT_MODEL", "gpt-4o")
+    model = os.environ.get("IC_REPORT_MODEL", "gpt-4o-search-preview")
     span = "a thorough but accessible deep dive (about 500-700 words)" if depth == "deep" else "a concise summary (about 250 words)"
     system = (
         "You are a sharp tutor writing a follow-up learning report for a smart builder and "
-        "entrepreneur after a walking conversation. Write clear Markdown: a one-line intro, then "
-        "2 to 4 '##' sections, with bullet points where useful. Be concrete, use an analogy when it "
-        "helps, no fluff, no emojis, and never use em dashes."
+        "entrepreneur after a walking conversation. Search the web for CURRENT, accurate "
+        "information, especially recent models, benchmarks, rankings, news, dates, and numbers; "
+        "never invent figures or rely on stale memory. Write clear Markdown: a one-line intro, then "
+        "2 to 4 '##' sections, with bullet points where useful (use bullet lists, not Markdown "
+        "tables, they do not render here). Be concrete, use an analogy when it helps, no fluff, no "
+        "emojis, and never use em dashes."
     )
     user = f"Topic to write up: {topic}\nLength: {span}.\n"
     if context_text:
         user += f"\nContext from our walk (for relevance, do not quote verbatim):\n{context_text[:1500]}\n"
     user += "\nWrite the report now in Markdown."
+    payload = {"model": model, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    if "search" not in model:
+        payload["temperature"] = 0.6  # search-preview models reject temperature
     r = httpx.post(
         "https://api.openai.com/v1/chat/completions",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={"model": model, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.6},
-        timeout=120,
+        json=payload,
+        timeout=180,
     )
     r.raise_for_status()
-    return _no_em_dash(r.json()["choices"][0]["message"]["content"])
+    msg = r.json()["choices"][0]["message"]
+    text = _no_em_dash(msg.get("content") or "")
+    cites, seen = [], set()
+    for a in (msg.get("annotations") or []):
+        uc = a.get("url_citation") or {}
+        url = uc.get("url")
+        if url and url not in seen:
+            seen.add(url)
+            cites.append((uc.get("title") or url, url))
+    if cites:
+        text += "\n\n## Sources\n" + "\n".join(f"- [{t}]({u})" for t, u in cites[:8])
+    return text
 
 
 def _telegram_ping(text):

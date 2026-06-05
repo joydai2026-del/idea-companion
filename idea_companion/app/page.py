@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v13"
+VERSION = "tutor-v14"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
