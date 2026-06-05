@@ -55,6 +55,13 @@ DEFAULT_TUTOR_PROMPT = (
     "LANGUAGE:\n"
     "- Bilingual English + Chinese (中文). Match the language she speaks in. If she mixes, "
     "you can mix. You may sprinkle the other language for a key term.\n\n"
+    "TOOLS (actually call them, do not just say you will):\n"
+    "- A report / deep dive / 'save this to Notion' / 'go deep on X' -> call request_report "
+    "(set visuals=true if she wants pictures, diagrams, or to be shown it).\n"
+    "- A standalone infographic, diagram, or picture -> call make_infographic.\n"
+    "- 'Remember this' / 'save this insight' -> call save_insight.\n"
+    "Call the tool, then confirm in one short sentence. Never refuse a save; you can always "
+    "prepare it for her Notion.\n\n"
     "START:\n"
     "- Open warmly and briefly. Tell her you can speak as many languages as she likes, then "
     "ask which she'd prefer for today: English or 中文 (Zhongwen)? Keep it under 8 seconds and "
@@ -71,13 +78,15 @@ TOOLS = [
         "description": (
             "Call this when JJ asks for a written report, a deep dive, or to 'go deep' / "
             "'do a detailed report' on a topic to read later. It saves the request to her "
-            "Notion for after the walk. After calling it, briefly confirm out loud."
+            "Notion for after the walk. If she also wants pictures, diagrams, or to be shown "
+            "it visually, set visuals=true. After calling it, briefly confirm out loud."
         ),
         "parameters": {
             "type": "object",
             "properties": {
                 "topic": {"type": "string", "description": "What to research and write up."},
                 "depth": {"type": "string", "enum": ["quick", "deep"], "description": "quick summary or deep dive"},
+                "visuals": {"type": "boolean", "description": "true if JJ wants pictures, diagrams, or illustrations included."},
             },
             "required": ["topic"],
         },
@@ -195,6 +204,59 @@ def _telegram_ping(text):
         httpx.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={"chat_id": chat, "text": text}, timeout=20)
     except Exception as exc:
         print("[worker] telegram err:", exc)
+
+
+def _generate_image(prompt, size="1024x1024"):
+    """Generate a PNG with gpt-image-1; returns raw bytes (or None on failure)."""
+    import base64
+    import httpx
+
+    key = os.environ["OPENAI_API_KEY"]
+    model = os.environ.get("IC_IMAGE_MODEL", "gpt-image-1")
+    try:
+        r = httpx.post(
+            "https://api.openai.com/v1/images/generations",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"model": model, "prompt": prompt[:900], "size": size},
+            timeout=180,
+        )
+        r.raise_for_status()
+        return base64.b64decode(r.json()["data"][0]["b64_json"])
+    except Exception as exc:
+        print("[worker] image gen err:", exc)
+        return None
+
+
+def _notion_upload_image(img_bytes, filename="illustration.png"):
+    """Upload PNG bytes to Notion (create -> send). Returns a file_upload id (or None)."""
+    import httpx
+
+    token = os.environ["NOTION_API_TOKEN"]
+    fv = os.environ.get("NOTION_FILE_VERSION", "2026-03-11")
+    try:
+        c = httpx.post(
+            "https://api.notion.com/v1/file_uploads",
+            headers={"Authorization": f"Bearer {token}", "Notion-Version": fv, "Content-Type": "application/json"},
+            json={"filename": filename, "content_type": "image/png"},
+            timeout=30,
+        )
+        c.raise_for_status()
+        fid = c.json()["id"]
+        s = httpx.post(
+            f"https://api.notion.com/v1/file_uploads/{fid}/send",
+            headers={"Authorization": f"Bearer {token}", "Notion-Version": fv},
+            files={"file": (filename, img_bytes, "image/png")},
+            timeout=120,
+        )
+        s.raise_for_status()
+        return fid
+    except Exception as exc:
+        print("[worker] notion upload err:", exc)
+        return None
+
+
+def _image_block(file_upload_id):
+    return {"object": "block", "type": "image", "image": {"type": "file_upload", "file_upload": {"id": file_upload_id}}}
 
 
 app = modal.App("idea-companion")
@@ -371,6 +433,7 @@ def web():
                                 depth=rq.get("depth") or "deep",
                                 typ=props["Type"]["select"]["name"],
                                 context_text=ctx,
+                                visuals=bool(rq.get("visuals")),
                             )
                         except Exception as exc:
                             print("[save] spawn failed:", exc)
@@ -390,7 +453,7 @@ def web():
 
 
 @app.function(image=image, secrets=SECRETS, timeout=600)
-def process_report(report_id, report_url, topic, depth, typ, context_text):
+def process_report(report_id, report_url, topic, depth, typ, context_text, visuals=False):
     """Background worker: research the request, write the finished report into the Notion
     page body, flip Status to Ready, and ping JJ on Telegram. Spawned by /save the moment a
     walk ends, so the report is ready by the time she sits down. This is the reliable Modal
@@ -412,23 +475,46 @@ def process_report(report_id, report_url, topic, depth, typ, context_text):
         except Exception as exc:
             print("[worker] status err:", exc)
 
+    fv = os.environ.get("NOTION_FILE_VERSION", "2026-03-11")
+    fheaders = {"Authorization": f"Bearer {token}", "Notion-Version": fv, "Content-Type": "application/json"}
+
     def append(blocks):
         for i in range(0, len(blocks), 90):
-            httpx.patch(
+            ar = httpx.patch(
                 f"https://api.notion.com/v1/blocks/{report_id}/children",
-                headers=nh,
+                headers=fheaders,
                 json={"children": blocks[i:i + 90]},
                 timeout=60,
             )
+            if ar.status_code >= 400:
+                print("[worker] append err:", ar.text[:200])
 
-    print(f"[worker] {typ} '{topic}' depth={depth}")
+    print(f"[worker] {typ} '{topic}' depth={depth} visuals={visuals}")
     set_status("In progress")
     try:
         if typ == "insight":
-            append([_para(topic)])
+            blocks = [_para(topic)]
+        elif typ == "infographic":
+            img = _generate_image(
+                f"A clean, friendly flat-illustration infographic explaining '{topic}' for a curious "
+                "learner. Simple labeled diagram, soft colors, minimal text, educational, no watermark."
+            )
+            fid = _notion_upload_image(img, "infographic.png") if img else None
+            md = _generate_report(topic, "quick", context_text)
+            head = [_image_block(fid)] if fid else [_para("(Could not generate the image this time; here is the explanation.)")]
+            blocks = head + _md_to_blocks(md)
         else:
             md = _generate_report(topic, depth, context_text)
-            append(_md_to_blocks(md))
+            blocks = _md_to_blocks(md)
+            if visuals:
+                img = _generate_image(
+                    f"A clean, friendly flat-illustration diagram that visually explains '{topic}' for a "
+                    "curious learner. Labeled, soft colors, minimal text, educational, no watermark."
+                )
+                fid = _notion_upload_image(img, "illustration.png") if img else None
+                if fid:
+                    blocks = blocks[:1] + [_image_block(fid)] + blocks[1:]
+        append(blocks)
         set_status("Ready")
         label = "deep dive" if depth == "deep" else "summary"
         _telegram_ping(f"\U0001f4d3 Ready: your {label} on “{topic}” is in your Notion.\n{report_url}")

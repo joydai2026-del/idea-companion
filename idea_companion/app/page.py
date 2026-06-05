@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v6"
+VERSION = "tutor-v7"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -115,9 +115,9 @@ function handleToolCall(item){
   let args={}; try{ args=JSON.parse(item.arguments||"{}"); }catch(e){}
   let out="Saved to your Notion for after the walk.";
   if(item.name==="request_report"){
-    const depth=args.depth||"deep"; requests.push({type:"report", topic:args.topic||"", depth});
-    addNote("📌 "+(depth==="deep"?"Deep report":"Report")+": "+(args.topic||"")+"  →  saving to Notion");
-    out="Got it. I'll prepare a "+depth+" report on "+(args.topic||"that")+" in your Notion for after the walk.";
+    const depth=args.depth||"deep"; const vis=!!args.visuals; requests.push({type:"report", topic:args.topic||"", depth, visuals:vis});
+    addNote("📌 "+(depth==="deep"?"Deep report":"Report")+(vis?" + pictures":"")+": "+(args.topic||"")+"  →  saving to Notion");
+    out="Got it. I'll prepare a "+depth+" report"+(vis?" with pictures":"")+" on "+(args.topic||"that")+" in your Notion for after the walk.";
   } else if(item.name==="make_infographic"){
     requests.push({type:"infographic", topic:args.topic||""});
     addNote("🖼️ Infographic: "+(args.topic||"")+"  →  saving to Notion");
