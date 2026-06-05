@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v7"
+VERSION = "tutor-v9"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -111,14 +111,30 @@ function botDelta(delta){ if(!botBubble){ botBubble=addBubble("tutor","Tutor · 
 function botDone(){ if(curBotText.trim()) transcriptLog.push({role:"tutor",text:curBotText.trim()}); botBubble=null; curBotText=""; }
 
 // Voice-issued commands arrive as function (tool) calls. Capture, show, confirm.
+let lastReportAt=0;
+function ack(call_id, out){
+  // Always confirm with tool_choice:none so the follow-up turn can't re-fire a tool.
+  try{
+    dc.send(JSON.stringify({type:"conversation.item.create", item:{type:"function_call_output", call_id:call_id, output:out}}));
+    dc.send(JSON.stringify({type:"response.create", response:{tool_choice:"none"}}));
+  }catch(e){}
+}
 function handleToolCall(item){
   let args={}; try{ args=JSON.parse(item.arguments||"{}"); }catch(e){}
+  const reportLike=(item.name==="request_report"||item.name==="make_infographic");
+  // The model sometimes fires the same ask twice (reworded) within a few seconds. Collapse it.
+  if(reportLike && (Date.now()-lastReportAt)<15000){
+    ack(item.call_id, "Already being prepared, no need to create another one.");
+    return;
+  }
   let out="Saved to your Notion for after the walk.";
   if(item.name==="request_report"){
+    lastReportAt=Date.now();
     const depth=args.depth||"deep"; const vis=!!args.visuals; requests.push({type:"report", topic:args.topic||"", depth, visuals:vis});
     addNote("📌 "+(depth==="deep"?"Deep report":"Report")+(vis?" + pictures":"")+": "+(args.topic||"")+"  →  saving to Notion");
     out="Got it. I'll prepare a "+depth+" report"+(vis?" with pictures":"")+" on "+(args.topic||"that")+" in your Notion for after the walk.";
   } else if(item.name==="make_infographic"){
+    lastReportAt=Date.now();
     requests.push({type:"infographic", topic:args.topic||""});
     addNote("🖼️ Infographic: "+(args.topic||"")+"  →  saving to Notion");
     out="I'll have an infographic on "+(args.topic||"that")+" waiting in your Notion.";
@@ -127,10 +143,7 @@ function handleToolCall(item){
     addNote("💡 Saved: "+(args.note||""));
     out="Saved that to your Notion.";
   } else { return; }
-  try{
-    dc.send(JSON.stringify({type:"conversation.item.create", item:{type:"function_call_output", call_id:item.call_id, output:out}}));
-    dc.send(JSON.stringify({type:"response.create"}));
-  }catch(e){}
+  ack(item.call_id, out);
 }
 
 async function start(){

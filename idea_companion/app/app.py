@@ -62,6 +62,12 @@ DEFAULT_TUTOR_PROMPT = (
     "- 'Remember this' / 'save this insight' -> call save_insight.\n"
     "Call the tool, then confirm in one short sentence. Never refuse a save; you can always "
     "prepare it for her Notion.\n\n"
+    "CONTINUITY & TEACH-BACK:\n"
+    "- You may be given a MEMORY list of recent walks. Use it: acknowledge what she has been "
+    "exploring and offer to continue an open thread or start fresh.\n"
+    "- If she says 'quiz me', 'test me', or 'let me explain', switch to teach-back: pick a concept "
+    "from a recent walk, ask her to explain it in her own words, then give warm, specific feedback "
+    "on what she nailed and what to sharpen. Keep it conversational.\n\n"
     "START:\n"
     "- Open warmly and briefly. Tell her you can speak as many languages as she likes, then "
     "ask which she'd prefer for today: English or 中文 (Zhongwen)? Keep it under 8 seconds and "
@@ -79,7 +85,8 @@ TOOLS = [
             "Call this when JJ asks for a written report, a deep dive, or to 'go deep' / "
             "'do a detailed report' on a topic to read later. It saves the request to her "
             "Notion for after the walk. If she also wants pictures, diagrams, or to be shown "
-            "it visually, set visuals=true. After calling it, briefly confirm out loud."
+            "it visually, set visuals=true. Call this AT MOST ONCE per report JJ asks for; do "
+            "not split one request into several calls. After calling it, briefly confirm out loud."
         ),
         "parameters": {
             "type": "object",
@@ -259,6 +266,66 @@ def _image_block(file_upload_id):
     return {"object": "block", "type": "image", "image": {"type": "file_upload", "file_upload": {"id": file_upload_id}}}
 
 
+def _summarize_conversation(transcript_text):
+    """One-sentence summary of a walk (topics learned + a hint of what's next), for memory."""
+    import httpx
+
+    key = os.environ.get("OPENAI_API_KEY")
+    if not key or not transcript_text.strip():
+        return ""
+    model = os.environ.get("IC_SUMMARY_MODEL", "gpt-4o-mini")
+    try:
+        r = httpx.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "Summarize this walking-tutor conversation in ONE sentence: what JJ learned about, and if clear, what she might want to explore next. No emojis, no em dashes."},
+                    {"role": "user", "content": transcript_text[:4000]},
+                ],
+                "temperature": 0.3,
+                "max_tokens": 80,
+            },
+            timeout=30,
+        )
+        r.raise_for_status()
+        return _no_em_dash(r.json()["choices"][0]["message"]["content"].strip())
+    except Exception as exc:
+        print("[save] summary err:", exc)
+        return ""
+
+
+def _recent_memory(limit=8):
+    """Format recent walk summaries so the tutor can remember JJ across sessions."""
+    import httpx
+
+    token = os.environ.get("NOTION_API_TOKEN")
+    conv_db = os.environ.get("IC_CONVERSATIONS_DB")
+    if not (token and conv_db):
+        return ""
+    nver = os.environ.get("NOTION_VERSION", "2022-06-28")
+    try:
+        r = httpx.post(
+            f"https://api.notion.com/v1/databases/{conv_db}/query",
+            headers={"Authorization": f"Bearer {token}", "Notion-Version": nver, "Content-Type": "application/json"},
+            json={"page_size": limit, "sorts": [{"timestamp": "created_time", "direction": "descending"}]},
+            timeout=15,
+        )
+        r.raise_for_status()
+        lines = []
+        for row in r.json().get("results", []):
+            props = row.get("properties", {})
+            title = ((props.get("Title", {}).get("title") or [{}])[0] or {}).get("plain_text", "")
+            summ = ((props.get("Summary", {}).get("rich_text") or [{}])[0] or {}).get("plain_text", "")
+            if summ:
+                lines.append(f"- {title.replace('Walk · ', '')}: {summ}")
+        return "\n".join(lines)
+    except Exception as exc:
+        print("[memory] err:", exc)
+        return ""
+
+
 app = modal.App("idea-companion")
 
 image = (
@@ -309,6 +376,13 @@ def web():
         voice = os.environ.get("OPENAI_REALTIME_VOICE", DEFAULT_VOICE)
         turn = os.environ.get("IC_TURN_DETECTION", DEFAULT_TURN)
         prompt = os.environ.get("IC_TUTOR_PROMPT", DEFAULT_TUTOR_PROMPT)
+        memory = _recent_memory()
+        if memory:
+            prompt += (
+                "\n\nMEMORY (recent walks with JJ, most recent first):\n" + memory +
+                "\n\nYou remember these. In your greeting, briefly acknowledge what she has been "
+                "exploring and offer to continue an open thread OR start something new."
+            )
         payload = {
             "session": {
                 "type": "realtime",
@@ -377,8 +451,12 @@ def web():
             dt = datetime.now(timezone.utc)
         date_str = dt.strftime("%Y-%m-%d")
         title = "Walk · " + dt.strftime("%Y-%m-%d %H:%M UTC")
-        first_user = next((t.get("text", "") for t in transcript if t.get("role") == "you"), "")
-        summary = first_user[:180] or f"{len(transcript)} turns"
+        transcript_text = "\n".join(("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "") for t in transcript)
+        summary = (
+            _summarize_conversation(transcript_text)
+            or next((t.get("text", "") for t in transcript if t.get("role") == "you"), "")[:180]
+            or f"{len(transcript)} turns"
+        )
         lang = "中文" if any(_has_cjk(t.get("text", "")) for t in transcript) else "EN"
         blocks = [_para(("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "")) for t in transcript[:90]]
 
