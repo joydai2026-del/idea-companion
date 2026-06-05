@@ -281,7 +281,7 @@ def _summarize_conversation(transcript_text):
             json={
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": "Summarize this walking-tutor conversation in ONE sentence: what JJ learned about, and if clear, what she might want to explore next. No emojis, no em dashes."},
+                    {"role": "system", "content": "In ONE sentence, summarize what JJ ASKED about or wanted to learn in this walk (focus on her own questions and requests, name the specific topic; do not just repeat what the tutor lectured on). No emojis, no em dashes."},
                     {"role": "user", "content": transcript_text[:4000]},
                 ],
                 "temperature": 0.3,
@@ -296,34 +296,74 @@ def _summarize_conversation(transcript_text):
         return ""
 
 
-def _recent_memory(limit=8):
-    """Format recent walk summaries so the tutor can remember JJ across sessions."""
+def _trivial_summary(s):
+    s = (s or "").strip().lower().rstrip(".!?")
+    return len(s) < 12 or s in {"hello", "hi", "hey", "mhm", "mm", "yes", "no", "okay", "ok", "hey hello", "hello hello"}
+
+
+def _recent_memory(conv_limit=8, topic_limit=14):
+    """The tutor's cross-walk memory: the concrete topics JJ has explored (from her Reports,
+    the ground truth) plus recent meaningful walk summaries. Reports are the reliable signal
+    of 'what did we cover' (conversation summaries can be sparse or circular)."""
     import httpx
 
     token = os.environ.get("NOTION_API_TOKEN")
-    conv_db = os.environ.get("IC_CONVERSATIONS_DB")
-    if not (token and conv_db):
+    if not token:
         return ""
     nver = os.environ.get("NOTION_VERSION", "2022-06-28")
-    try:
-        r = httpx.post(
-            f"https://api.notion.com/v1/databases/{conv_db}/query",
-            headers={"Authorization": f"Bearer {token}", "Notion-Version": nver, "Content-Type": "application/json"},
-            json={"page_size": limit, "sorts": [{"timestamp": "created_time", "direction": "descending"}]},
-            timeout=15,
-        )
-        r.raise_for_status()
-        lines = []
-        for row in r.json().get("results", []):
-            props = row.get("properties", {})
-            title = ((props.get("Title", {}).get("title") or [{}])[0] or {}).get("plain_text", "")
-            summ = ((props.get("Summary", {}).get("rich_text") or [{}])[0] or {}).get("plain_text", "")
-            if summ:
-                lines.append(f"- {title.replace('Walk · ', '')}: {summ}")
-        return "\n".join(lines)
-    except Exception as exc:
-        print("[memory] err:", exc)
-        return ""
+    hdr = {"Authorization": f"Bearer {token}", "Notion-Version": nver, "Content-Type": "application/json"}
+    parts = []
+
+    rep_db = os.environ.get("IC_REPORTS_DB")
+    if rep_db:
+        try:
+            r = httpx.post(
+                f"https://api.notion.com/v1/databases/{rep_db}/query",
+                headers=hdr,
+                json={"page_size": 40, "sorts": [{"timestamp": "created_time", "direction": "descending"}]},
+                timeout=15,
+            )
+            r.raise_for_status()
+            topics, seen = [], set()
+            for row in r.json().get("results", []):
+                t = ((row.get("properties", {}).get("Topic", {}).get("title") or [{}])[0] or {}).get("plain_text", "").strip()
+                k = t.lower()
+                if t and k not in seen:
+                    seen.add(k)
+                    topics.append(t)
+            if topics:
+                parts.append(
+                    "Topics JJ has ALREADY explored with you (you DO remember these), most recent first: "
+                    + "; ".join(topics[:topic_limit]) + "."
+                )
+        except Exception as exc:
+            print("[memory] reports err:", exc)
+
+    conv_db = os.environ.get("IC_CONVERSATIONS_DB")
+    if conv_db:
+        try:
+            r = httpx.post(
+                f"https://api.notion.com/v1/databases/{conv_db}/query",
+                headers=hdr,
+                json={"page_size": 15, "sorts": [{"timestamp": "created_time", "direction": "descending"}]},
+                timeout=15,
+            )
+            r.raise_for_status()
+            lines = []
+            for row in r.json().get("results", []):
+                props = row.get("properties", {})
+                title = ((props.get("Title", {}).get("title") or [{}])[0] or {}).get("plain_text", "")
+                summ = ((props.get("Summary", {}).get("rich_text") or [{}])[0] or {}).get("plain_text", "")
+                if summ and not _trivial_summary(summ):
+                    lines.append(f"- {title.replace('Walk · ', '')}: {summ}")
+                if len(lines) >= conv_limit:
+                    break
+            if lines:
+                parts.append("Recent walks:\n" + "\n".join(lines))
+        except Exception as exc:
+            print("[memory] convs err:", exc)
+
+    return "\n\n".join(parts)
 
 
 def _validate_init_data(init_data, bot_token):
@@ -432,9 +472,10 @@ def web():
         memory = _recent_memory()
         if memory:
             prompt += (
-                "\n\nMEMORY (recent walks with JJ, most recent first):\n" + memory +
-                "\n\nYou remember these. In your greeting, briefly acknowledge what she has been "
-                "exploring and offer to continue an open thread OR start something new."
+                "\n\nMEMORY (what you have already covered with JJ):\n" + memory +
+                "\n\nYou DO remember these. If she asks whether you covered a topic before, check this "
+                "list and answer truthfully; do NOT say no if it is listed here. In your greeting, "
+                "briefly acknowledge what she has been exploring and offer to continue or start new."
             )
         payload = {
             "session": {
