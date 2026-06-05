@@ -3,6 +3,11 @@
 > Gather everything you consume and produce, and each week turn it into a review you can read, hear, and ask questions of out loud.
 > Entry point for any Claude Code session in this repo. Global conventions live in `~/.claude/CLAUDE.md`.
 
+## Repo + sync (MANDATORY)
+- GitHub remote (origin, SSH): **`git@github.com:joydai2026-del/idea-companion.git`** (private).
+- **Sync every session that has changes**: at wrap-up (or end of a working chunk), `git push origin <current-branch>`. JJ's standing directive: keep this repo synced to GitHub each session.
+- Secrets live in `.env` (gitignored, never commit). Cut a `feat/` branch before the first edit; never commit to `main` directly.
+
 ## What this is
 A cloud, phone-first personal "evolution" platform. It aggregates JJ's **inputs** (YouTube/article links she drops to a Telegram bot, her Notion weekly journal) and **outputs** (GitHub commits, her knowledge vault via private git), synthesizes a **weekly review** into Notion, and turns it into **audio she can listen to on a walk and interrogate by voice** (bilingual EN + 中文). Built in parallel with Spendetector; **NOT a demo requirement.**
 
