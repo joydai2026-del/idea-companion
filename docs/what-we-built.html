@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Evolver · what's built</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf8f4;--card:#fff;--ink:#1c1c1e;--muted:#6b6a66;--line:#e7e3da;
+    --violet:#5b3df5;--violet-s:#efeaff;--teal:#0d9488;--teal-s:#e0f2f0;--green:#0a8f5b;--green-s:#e6f5ee;
+    --amber:#b7791f;--amber-s:#fbf2dd;--blue:#2563c9;--blue-s:#e8f0fe;--gray-s:#f0eee9;
+    --shadow:0 1px 2px rgba(20,18,12,.04),0 8px 26px rgba(20,18,12,.07)}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Plus Jakarta Sans","Noto Sans SC",system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:1060px;margin:0 auto;padding:34px 20px 70px}
+  header{background:linear-gradient(135deg,#23106b,#5b3df5 55%,#0d9488);color:#fff;border-radius:22px;
+    padding:30px 30px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header:after{content:"";position:absolute;right:-50px;top:-50px;width:230px;height:230px;
+    background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);border-radius:50%}
+  .eye{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.85}
+  h1{font-size:27px;font-weight:800;margin:8px 0 6px}
+  header p{margin:0;font-size:15.5px;opacity:.95;max-width:680px}
+  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+    font-weight:800;margin:38px 0 14px}
+  .pipe{display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;align-items:stretch;gap:0}
+  @media(max-width:780px){.pipe{grid-template-columns:1fr;gap:14px}.arrow{display:none}}
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 16px 18px;
+    box-shadow:var(--shadow)}
+  .stage .lab{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .in .lab{color:var(--blue)} .br .lab{color:var(--violet)} .out .lab{color:var(--teal)}
+  .row{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px;font-weight:500}
+  .row .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;flex:none}
+  .in .ic{background:var(--blue-s)} .br .ic{background:var(--violet-s)} .out .ic{background:var(--teal-s)}
+  .sub{font-size:11.5px;color:var(--muted);font-weight:500;margin-left:auto;text-align:right}
+  .tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:auto}
+  .t-live{background:var(--green);color:#fff}.t-next{background:var(--gray-s);color:#8a8275}
+  .arrow{display:grid;place-items:center;color:#b9aee9;font-size:26px;font-weight:800}
+  .grid2{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+  @media(max-width:780px){.grid2{grid-template-columns:1fr}}
+  .phone{background:#0f0f0f;border-radius:30px;padding:11px;box-shadow:var(--shadow);max-width:330px}
+  .scr{background:#e9e7e1;border-radius:21px;padding:14px;min-height:300px}
+  .bub{background:#fff;border-radius:14px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.07);font-size:13px}
+  .bub b{font-size:14px}.statline{color:var(--muted);font-size:11.5px;margin:3px 0 7px}
+  .bub .li{margin:3px 0;font-weight:600}.relearn{margin-top:8px;padding-top:8px;border-top:1px solid #eee;color:var(--violet);font-size:12px}
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow)}
+  .doc .h{font-size:16px;font-weight:800;margin:0 0 3px}.doc .meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .theme{padding:11px 0;border-top:1px solid var(--line)}.theme .tt{font-weight:700;font-size:14px}
+  .theme .ts{font-size:12.5px;color:var(--muted);margin-top:2px}.chip{font-size:10.5px;color:var(--blue);font-weight:600}
+  .callout{margin-top:12px;background:var(--violet-s);border:1px solid #d9ccff;border-radius:11px;padding:9px 12px;font-size:12.5px;color:#3a2f6e}
+  .stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);text-align:center;flex:1;min-width:90px}
+  .pill .n{font-size:22px;font-weight:800;color:var(--violet)}.pill .l{font-size:11px;color:var(--muted);font-weight:600}
+  .status{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:680px){.status{grid-template-columns:1fr}}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+  .box.done{border-left:4px solid var(--green)}.box.next{border-left:4px solid #cfc8bb}
+  .box .bh{font-weight:800;font-size:13px;margin-bottom:8px}.box.done .bh{color:var(--green)}.box.next .bh{color:#8a8275}
+  .ck{font-size:13px;padding:3px 0;font-weight:500}
+  .foot{margin-top:36px;color:var(--muted);font-size:12px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+  <div class="eye">Personal Evolver · Phase 1</div>
+  <h1>Your week, gathered and handed back to you.</h1>
+  <p>Every Sunday the cloud reads what you did + consumed, writes you a short review, and (soon) reads it aloud on a walk.</p>
+</header>
+
+<h2>How it works, end to end</h2>
+<div class="pipe">
+  <div class="stage in">
+    <div class="lab">① Input · what feeds it</div>
+    <div class="row"><span class="ic">💻</span>GitHub commits + PRs <span class="tag t-live">LIVE</span></div>
+    <div class="row"><span class="ic">📓</span>Vault journals + lessons <span class="tag t-live">LIVE</span></div>
+    <div class="row"><span class="ic">📝</span>Notion weekly journal <span class="tag t-next">soon</span></div>
+    <div class="row"><span class="ic">🔗</span>Dropped links (bot) <span class="tag t-next">soon</span></div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="stage br">
+    <div class="lab">② Brain · cloud, weekly</div>
+    <div class="row"><span class="ic">☁️</span>Runs on Modal (Mon AM)</div>
+    <div class="row"><span class="ic">🧠</span>Clusters into 2 to 6 themes</div>
+    <div class="row"><span class="ic">🔁</span>Finds the recurring lesson</div>
+    <div class="row"><span class="ic">🔢</span>Real citations (no made-up)</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="stage out">
+    <div class="lab">③ Output · what you get</div>
+    <div class="row"><span class="ic">🗂️</span>Notion review page <span class="tag t-next">soon</span></div>
+    <div class="row"><span class="ic">📱</span>Phone digest <span class="tag t-next">soon</span></div>
+    <div class="row"><span class="ic">🎧</span>Podcast on a walk <span class="tag t-next">P1.5</span></div>
+    <div class="row"><span class="ic">🎙️</span>Ask out loud (中文/EN) <span class="tag t-next">P2</span></div>
+  </div>
+</div>
+
+<h2>Real example · your actual week (2026-W23)</h2>
+<div class="stat" style="margin-bottom:18px">
+  <div class="pill"><div class="n">39</div><div class="l">substantive commits</div></div>
+  <div class="pill"><div class="n">8</div><div class="l">PRs merged</div></div>
+  <div class="pill"><div class="n">6</div><div class="l">repos touched</div></div>
+  <div class="pill"><div class="n">4</div><div class="l">themes found</div></div>
+</div>
+<div class="grid2">
+  <div class="phone"><div class="scr">
+    <div class="bub">
+      <b>🧠 Your week 2026-W23</b>
+      <div class="statline">39 commits · 8 PRs · 6 repos</div>
+      A heavy shipping week: the social autoposting engine went live, hardened by a security pass.
+      <div class="li">• Social autoposting engine shipped</div>
+      <div class="li">• Security + infra hardening</div>
+      <div class="li">• AIC sponsor-email rebuilt</div>
+      <div class="relearn">🔁 You keep relearning: enforce the timezone explicitly.</div>
+    </div>
+  </div></div>
+  <div class="doc">
+    <div class="h">Week 2026-W23 — Weekly Review</div>
+    <div class="meta">Notion page · skim in 10 seconds</div>
+    <div class="theme"><div class="tt">Social autoposting engine shipped</div><div class="ts">Idea to live: hooky+meme weekday posts, tuned the window twice to 9am-3pm ET.</div><div class="chip">↳ PR #108, #111, #110</div></div>
+    <div class="theme"><div class="tt">Security + infra hardening</div><div class="ts">Critical audit (secrets, fail-closed auth) + a durable disk-prune so the box never fills.</div><div class="chip">↳ PR #114, #115, #109</div></div>
+    <div class="theme"><div class="tt">AIC sponsor-email pipeline rebuilt</div><div class="ts">Two-email branded flow, direct-to-sponsor sends, self-healing rails.</div><div class="chip">↳ 5 commits</div></div>
+    <div class="callout">⚠️ Mistake → lesson: the box hit 100% disk, so you shipped a self-healing prune so it can't recur.</div>
+  </div>
+</div>
+
+<h2>What's built vs what's next</h2>
+<div class="status">
+  <div class="box done">
+    <div class="bh">✅ Built + tested (28/28 green, on real data)</div>
+    <div class="ck">✓ The 4 input readers (GitHub, vault, journal, links)</div>
+    <div class="ck">✓ The synthesis brain (themes + lesson + real citations)</div>
+    <div class="ck">✓ The weekly orchestrator + no-duplicate safety</div>
+    <div class="ck">✓ Proven end to end on your real week</div>
+  </div>
+  <div class="box next">
+    <div class="bh">▢ Next (needs a key or a yes)</div>
+    <div class="ck">▢ Put it in the cloud (Modal weekly run)</div>
+    <div class="ck">▢ Write the page to your Notion + ping your phone</div>
+    <div class="ck">▢ Telegram bot for dropping links</div>
+    <div class="ck">▢ 🎧 NotebookLM podcast, then 🎙️ voice agent</div>
+  </div>
+</div>
+
+<div class="foot">Personal Evolver · its own repo · plan reviewed + locked · 2026-06-04</div>
+</div></body></html>

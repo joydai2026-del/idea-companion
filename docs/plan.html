@@ -57,6 +57,9 @@
 </head>
 <body>
 <div class="wrap">
+<div class="callout c-amber" style="margin-bottom:18px"><span class="h">📌 Status: original vision · decisions now LOCKED (2026-06-04)</span>
+This page is kept as the vision/pitch. The <b>canonical, implementation-ready build spec</b> is the master plan in the vault: <code>projects/personal-evolver/plans/2026-06-04-master-plan.md</code>. Do not implement from this page. Locked since: <b>Notion home = personal workspace</b>; <b>journal = "2026 Journal Tracker" DB</b>; <b>audio = per-week bilingual</b>; <b>podcast = NotebookLM generated Mac-side</b> (core stays cloud); <b>Realtime voice agent = Phase 2</b>; <b>vault-to-git = the 4 reflection dirs</b>. Corrections to text below: NotebookLM runs Mac-side (no cloud API), the vault is pushed at wrap-ups (not hourly), and dropped links go to a dedicated Inputs DB (not the Entertainment hub).
+</div>
 <header class="hero">
   <div class="eyebrow">Product 2 of 2 · Build in parallel</div>
   <h1>Evolution: your week, synthesized, and a podcast you can argue with</h1>
@@ -164,12 +167,12 @@ flowchart LR
   <tr><td>Privacy</td><td>It is your most personal data. Everything stays in your Notion + your cloud, nothing sold, your keys.</td></tr>
 </table>
 
-<h2 id="open"><span class="num">9.</span> Open decisions</h2>
+<h2 id="open"><span class="num">9.</span> Decisions (RESOLVED 2026-06-04)</h2>
 <ul>
-  <li><b>Vault scope to git:</b> whole vault, or just <code>learning-journals / patterns / corrections / session-logs</code>? (Lean: just those.)</li>
-  <li><b>Weekly journal:</b> point me to your Notion weekly journal page and share it with the integration.</li>
-  <li><b>Audio default language:</b> English, Chinese, or pick per week?</li>
-  <li><b>Listen tool:</b> NotebookLM podcast + Realtime agent (both), or start with just the Realtime agent (one tool that narrates and answers)?</li>
+  <li><b>Vault scope to git:</b> ✅ just the 4 reflection dirs (<code>learning-journals / patterns / corrections.md / session-logs</code>).</li>
+  <li><b>Weekly journal:</b> ✅ the "2026 Journal Tracker" inline DB inside your "2026 Weekly Journals" page.</li>
+  <li><b>Audio default language:</b> ✅ per week / bilingual (EN + 中文).</li>
+  <li><b>Listen tool:</b> ✅ both, phased. NotebookLM podcast (Phase 1, Mac-side) + the Realtime voice agent (Phase 2, the two-way ask).</li>
 </ul>
 <div class="callout c-green"><span class="h">Sequencing</span> Build Receipts first (the demo), then Product 2 on the same Modal + Telegram + Notion rails. The synthesis brain and the audio layer are the only net-new pieces. Then it runs through the planning pipeline and the review gate like everything else.</div>
 

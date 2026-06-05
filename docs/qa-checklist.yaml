@@ -1,0 +1,117 @@
+# Personal Evolver — Phase 1 success criteria (QA checklist)
+# Derived from the reviewed master plan: .vault/plans/2026-06-04-master-plan.md (2-round phase-gate, LOCKED)
+# Consumed by /qa-runner. Statuses: pending | pass | fail | blocked
+# This is an AI feature → 3 tiers: L1 deterministic floor, L2 AI eval bands (/ai-done), L3 live-surface (§3.13).
+meta:
+  project: personal-evolver
+  phase: 1
+  feature: weekly-review (read + phone digest + Mac-side podcast)
+  generated: 2026-06-04
+
+# ───────────────────────── L1 · DETERMINISTIC FLOOR ─────────────────────────
+deterministic:
+  - id: L1-week-window
+    desc: week_window() returns a half-open [Mon00:00, nextMon00:00) interval in America/New_York, DST-correct
+    verify: "pytest tests/test_week_window.py -q (covers a DST spring-forward + fall-back week + year-boundary ISO week)"
+    status: pending
+  - id: L1-gh-repos
+    desc: GitHub connector enumerates owner+collaborator+org repos, paginated, filtered by pushed_at in window
+    verify: "pytest tests/test_github.py::test_repo_enumeration (mocked) + one live smoke listing >0 repos for the current week"
+    status: pending
+  - id: L1-gh-branches
+    desc: commits captured across feature branches (not just default), deduped by SHA; fallback triggers on 422/1k-cap
+    verify: "pytest tests/test_github.py::test_cross_branch_dedupe + ::test_search_fallback_trigger"
+    status: pending
+  - id: L1-vault-sparse
+    desc: vault clone is sparse (blob:none + sparse-checkout of the 4 dirs); cached remote stays tokenless (no PAT in .git/config or argv)
+    verify: "pytest tests/test_vault.py::test_sparse_paths + grep .git/config for token-shape == 0 hits"
+    status: pending
+  - id: L1-vault-diff
+    desc: vault week-extraction uses base..head (last commit < start / < next_start) then date-filters; no-commit week emits a note, never errors
+    verify: "pytest tests/test_vault.py::test_base_head_range + ::test_empty_week_note"
+    status: pending
+  - id: L1-journal
+    desc: journal reader queries the 2026 Journal Tracker data source for the in-window row; missing entry skips gracefully
+    verify: "pytest tests/test_journal.py (mocked) + one live read of the current-week row or graceful-skip"
+    status: pending
+  - id: L1-idempotency
+    desc: re-running the same week updates the SAME Notion page (queried by week_key), never duplicates, even if the ledger write is lost
+    verify: "pytest tests/test_idempotency.py::test_rerun_no_dupe + ::test_crash_between_create_and_ledger"
+    status: pending
+  - id: L1-writer-ownership
+    desc: cron, webhook, and audio side-car write disjoint paths; no shared mutable Volume file
+    verify: "code audit + pytest tests/test_state_partitions.py"
+    status: pending
+  - id: L1-webhook-auth
+    desc: Telegram webhook rejects any POST missing/!= the X-Telegram-Bot-Api-Secret-Token header
+    verify: "pytest tests/test_webhook.py::test_rejects_bad_secret"
+    status: pending
+  - id: L1-bot-graceful
+    desc: input bot replies cleanly when INPUTS_DB_ID unset (no crash); orchestrator validates required config at startup
+    verify: "pytest tests/test_webhook.py::test_unconfigured + tests/test_config.py::test_startup_validation"
+    status: pending
+  - id: L1-secret-gate
+    desc: no secret-shaped string in code or logs; CI grep-gate fails the build if one appears
+    verify: "bash scripts/secret-gate.sh exits non-zero on planted token, zero on clean tree"
+    status: pending
+  - id: L1-static
+    desc: ruff + mypy clean; full unit suite green
+    verify: "ruff check . && mypy src && pytest -q"
+    status: pending
+
+# ───────────────────────── L2 · AI EVAL BANDS (/ai-done) ─────────────────────
+ai_eval:
+  - id: L2-themes-count
+    desc: synthesis emits 2..6 themes (band), never 0 on a non-empty week, never >6
+    verify: "eval harness over >=5 real/sample weeks: 100% land in [2,6]; empty week => the empty-week floor path"
+    status: pending
+  - id: L2-recurring-lesson
+    desc: the recurring-lesson callback only fires for an item with >=3 occurrences; correct count cited
+    verify: "eval over labeled weeks: precision on the 3+ rule >= agreed band; manual spot-check 5 weeks"
+    status: pending
+  - id: L2-citations-real
+    desc: every citation maps to a REAL source id (commit SHA / Notion row / journal id) constructed in code — zero LLM-invented ids
+    verify: "assert all citation ids exist in the source bundle; planted-hallucination test => 0 pass-through"
+    status: pending
+  - id: L2-bilingual
+    desc: per-week language selection works; a 中文 week produces 中文 synthesis + digest + episode language flag
+    verify: "eval: force EN and 中文; output language matches; CJK renders correctly end-to-end"
+    status: pending
+  - id: L2-empty-week
+    desc: a genuinely empty week yields a 'couldn't build much, here's why' digest + minimal stub, NOT an empty review page
+    verify: "feed an empty bundle => floor path asserted"
+    status: pending
+
+# ───────────────────────── L3 · LIVE-SURFACE (§3.13) ─────────────────────────
+live_surface:
+  - id: L3-real-notion-page
+    desc: a REAL weekly run (this week's actual data) creates a real, readable Weekly Review page in the personal Notion
+    verify: "open the page in Notion; themes + recurring-lesson + stats present and correct; 10-second skim test passes"
+    status: pending
+  - id: L3-real-phone-digest
+    desc: the digest actually reaches JJ's phone via the dedicated Telegram bot with working deep-links (Notion + podcast)
+    verify: "JJ confirms receipt on phone; links open the right Notion page"
+    status: pending
+  - id: L3-real-podcast
+    desc: a real NotebookLM episode is produced Mac-side, playable, in the chosen language, linked on the Notion page
+    verify: "open episode.mp3, listen ~30s: it is about THIS week, audio is real (not silence), language correct"
+    status: pending
+  - id: L3-end-to-end-idempotent
+    desc: re-running the live week does not duplicate the page or the episode
+    verify: "run twice; exactly one page + one episode for the week_key"
+    status: pending
+
+# ───────────────────────── failure-triage + rollback (/ai-done) ──────────────
+operability:
+  - id: OP-failure-triage
+    desc: each connector failure mode has a pre-decided action (skip+note / retry / alert), documented
+    verify: "runbook in repo: docs/runbook.md maps each failure to an action (solo-owner pre-decisions)"
+    status: pending
+  - id: OP-tripwires
+    desc: tripwires defined (NotebookLM stall => audio:failed+ping; empty-week floor; GitHub rate-limit fallback) with a rehearsed manual rollback (disable cron)
+    verify: "tripwire list + a tested 'modal app stop' rollback path"
+    status: pending
+  - id: OP-postship
+    desc: after the first real Sunday(Mon) run, review actual output vs eval bands; log drift; adjust prompt
+    verify: "post-ship review note appended after week 1"
+    status: pending
