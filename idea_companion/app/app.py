@@ -387,7 +387,15 @@ def _validate_init_data(init_data, bot_token):
         calc = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
         if not hmac.compare_digest(calc, received):
             return None
-        return json.loads(pairs.get("user", "{}"))
+        import time
+
+        max_age = int(os.environ.get("IC_AUTH_MAX_AGE", "86400"))
+        if max_age and (time.time() - int(pairs.get("auth_date", "0"))) > max_age:
+            return None  # replay protection: initData too old
+        user = json.loads(pairs.get("user", "{}"))
+        if not user.get("id"):
+            return None  # signature valid but no user identity
+        return user
     except Exception:
         return None
 
@@ -401,9 +409,11 @@ def _authorized(request):
     if user is None:
         return False, "invalid or missing Telegram initData"
     owner = _os.environ.get("IC_OWNER_USER_ID")
-    if owner and str(user.get("id")) != str(owner):
-        return False, f"user {user.get('id')} is not the owner"
-    return True, f"ok (user {user.get('id')})"
+    if not owner:
+        return False, "owner not configured"  # fail closed: never allow when owner unset
+    if str(user.get("id")) != str(owner):
+        return False, "not the owner"
+    return True, "ok"
 
 
 def _auth_gate(request, where, JSONResponse, no_store):
@@ -432,7 +442,7 @@ SECRETS = [
 ]
 
 
-@app.function(image=image, secrets=SECRETS, timeout=120)
+@app.function(image=image, secrets=SECRETS, timeout=120, min_containers=1)
 @modal.asgi_app()
 def web():
     import httpx
@@ -504,7 +514,8 @@ def web():
             return JSONResponse({"error": f"upstream request failed: {exc}"}, status_code=502, headers=no_store)
 
         if r.status_code >= 400:
-            return JSONResponse({"error": r.text[:500]}, status_code=r.status_code, headers=no_store)
+            print(f"[session] openai error {r.status_code}: {r.text[:300]}")
+            return JSONResponse({"error": "tutor temporarily unavailable, please retry"}, status_code=502, headers=no_store)
 
         data = r.json()
         return JSONResponse(
@@ -526,8 +537,8 @@ def web():
             body = await request.json()
         except Exception:
             return JSONResponse({"ok": False, "error": "bad json"}, status_code=400, headers=no_store)
-        transcript = body.get("transcript") or []
-        reqs = body.get("requests") or []
+        transcript = (body.get("transcript") or [])[:200]
+        reqs = (body.get("requests") or [])[:10]  # bound fan-out: cap report requests per walk
         started_at = body.get("started_at")
         print(f"[save] turns={len(transcript)} requests={len(reqs)}")
 
@@ -596,22 +607,26 @@ def web():
                         errors.append(f"report '{topic[:30]}': " + rr.text[:200])
                     else:
                         rj = rr.json()
+                        rid = rj.get("id")
                         report_urls.append(rj.get("url"))
-                        ctx = "\n".join(
-                            ("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "") for t in transcript
-                        )[:1800]
-                        try:
-                            process_report.spawn(
-                                report_id=rj.get("id"),
-                                report_url=rj.get("url"),
-                                topic=topic,
-                                depth=rq.get("depth") or "deep",
-                                typ=props["Type"]["select"]["name"],
-                                context_text=ctx,
-                                visuals=bool(rq.get("visuals")),
-                            )
-                        except Exception as exc:
-                            print("[save] spawn failed:", exc)
+                        if not rid:
+                            errors.append(f"report '{topic[:30]}': created but no id returned")
+                        else:
+                            ctx = "\n".join(
+                                ("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "") for t in transcript
+                            )[:1800]
+                            try:
+                                process_report.spawn(
+                                    report_id=rid,
+                                    report_url=rj.get("url"),
+                                    topic=topic,
+                                    depth=rq.get("depth") or "deep",
+                                    typ=props["Type"]["select"]["name"],
+                                    context_text=ctx,
+                                    visuals=bool(rq.get("visuals")),
+                                )
+                            except Exception as exc:
+                                print("[save] spawn failed:", exc)
 
         return JSONResponse(
             {
@@ -654,6 +669,7 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
     fheaders = {"Authorization": f"Bearer {token}", "Notion-Version": fv, "Content-Type": "application/json"}
 
     def append(blocks):
+        ok = True
         for i in range(0, len(blocks), 90):
             ar = httpx.patch(
                 f"https://api.notion.com/v1/blocks/{report_id}/children",
@@ -662,7 +678,9 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
                 timeout=60,
             )
             if ar.status_code >= 400:
+                ok = False
                 print("[worker] append err:", ar.text[:200])
+        return ok
 
     print(f"[worker] {typ} '{topic}' depth={depth} visuals={visuals}")
     set_status("In progress")
@@ -689,11 +707,16 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
                 fid = _notion_upload_image(img, "illustration.png") if img else None
                 if fid:
                     blocks = blocks[:1] + [_image_block(fid)] + blocks[1:]
-        append(blocks)
-        set_status("Ready")
-        label = "deep dive" if depth == "deep" else "summary"
-        _telegram_ping(f"\U0001f4d3 Ready: your {label} on “{topic}” is in your Notion.\n{report_url}")
+        appended_ok = append(blocks)
+        if appended_ok:
+            set_status("Ready")
+            label = "deep dive" if depth == "deep" else "summary"
+            _telegram_ping(f"\U0001f4d3 Ready: your {label} on “{topic}” is in your Notion.\n{report_url}")
+        else:
+            # The write was incomplete; do NOT claim Ready (a green status must mean the body is there).
+            set_status("Requested")
+            _telegram_ping(f"⚠️ I saved partial notes on “{topic}” but the Notion write was incomplete. Ask me to redo it.")
     except Exception as exc:
         print("[worker] error:", exc)
         set_status("Requested")
-        _telegram_ping(f"⚠️ I hit a snag preparing “{topic}”. I'll retry it.")
+        _telegram_ping(f"⚠️ I couldn't finish “{topic}” this time. Ask me again and I'll retry it.")

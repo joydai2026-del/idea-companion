@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v11"
+VERSION = "tutor-v12"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -89,7 +89,7 @@ const tg=window.Telegram&&window.Telegram.WebApp;
 try{ if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor&&tg.setHeaderColor("#0c1322"); } }catch(e){}
 function tgInit(){ return (tg&&tg.initData)?tg.initData:""; }
 
-let pc=null, dc=null, micStream=null, audioCtx=null, live=false, botBubble=null, rafId=null;
+let pc=null, dc=null, micStream=null, audioCtx=null, live=false, connecting=false, botBubble=null, rafId=null;
 let curBotText="", startedAt=0;
 const transcriptLog=[];   // [{role:'you'|'tutor', text}]
 const requests=[];        // captured voice commands [{type, ...}]
@@ -113,11 +113,14 @@ function botDone(){ if(curBotText.trim()) transcriptLog.push({role:"tutor",text:
 
 // Voice-issued commands arrive as function (tool) calls. Capture, show, confirm.
 let lastReportAt=0;
+let pendingContinue=false;
 function ack(call_id, out){
-  // Always confirm with tool_choice:none so the follow-up turn can't re-fire a tool.
+  // Send only the tool output now; fire ONE response.create after the model's response
+  // settles (on response.done), so two tool calls in one turn cannot collide with an
+  // active response. tool_choice:none on that turn stops an immediate re-fire.
   try{
     dc.send(JSON.stringify({type:"conversation.item.create", item:{type:"function_call_output", call_id:call_id, output:out}}));
-    dc.send(JSON.stringify({type:"response.create", response:{tool_choice:"none"}}));
+    pendingContinue=true;
   }catch(e){}
 }
 function handleToolCall(item){
@@ -148,10 +151,11 @@ function handleToolCall(item){
 }
 
 async function start(){
-  if(live) return;
+  if(live||connecting) return;
+  connecting=true;
   setErr(""); setState("connecting","..."); setHint("Connecting your tutor...");
   try{ micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}); }
-  catch(e){ setState("","Tap to start"); setHint("Tap, allow the mic, then just talk."); setErr("Mic blocked: "+(e.name||e)); return; }
+  catch(e){ connecting=false; setState("","Tap to start"); setHint("Allow the mic in Settings, then tap again."); setErr("Mic blocked: "+(e.name||e)); return; }
 
   try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); await audioCtx.resume(); meter(micStream); const b=$("bot"); b.muted=false; b.play().catch(()=>{}); }catch(e){}
 
@@ -174,7 +178,7 @@ async function start(){
     const resp=await fetch("https://api.openai.com/v1/realtime/calls",{ method:"POST", body:offer.sdp, headers:{ "Authorization":"Bearer "+tok.value, "Content-Type":"application/sdp" } });
     if(!resp.ok) throw new Error("voice connect "+resp.status);
     const answer=await resp.text(); await pc.setRemoteDescription({type:"answer", sdp:answer});
-    live=true; startedAt=Date.now(); endBtn.style.display="block"; setState("listening","Listening"); setHint("Just talk. Tap the orb or End to stop.");
+    live=true; connecting=false; startedAt=Date.now(); endBtn.style.display="block"; setState("listening","Listening"); setHint("Just talk. Tap the orb or End to stop.");
   }catch(e){ stop("error"); setErr("Voice connect failed: "+e.message); }
 }
 
@@ -184,7 +188,7 @@ function onEvent(ev){
   else if(t==="conversation.item.input_audio_transcription.completed"){ addUser(ev.transcript||""); }
   else if(t.indexOf("audio_transcript")>=0 && t.indexOf("delta")>=0){ setState("speaking","Speaking"); botDelta(ev.delta||""); }
   else if(t.indexOf("audio_transcript")>=0 && t.indexOf("done")>=0){ botDone(); }
-  else if(t==="response.done"){ botDone(); if(live) setState("listening","Listening"); }
+  else if(t==="response.done"){ botDone(); if(pendingContinue){ pendingContinue=false; try{ dc.send(JSON.stringify({type:"response.create", response:{tool_choice:"none"}})); }catch(e){} } if(live) setState("listening","Listening"); }
   else if(t==="input_audio_buffer.speech_started"){ if(live) setState("listening","Listening"); }
   else if(t==="error"){ setErr("Tutor error: "+JSON.stringify(ev.error||ev).slice(0,140)); }
 }
@@ -213,7 +217,7 @@ async function saveConversation(){
 }
 
 function stop(reason){
-  const wasLive=live; live=false;
+  const wasLive=live; live=false; connecting=false;
   if(rafId) cancelAnimationFrame(rafId);
   try{ if(pc) pc.close(); }catch(e){} pc=null; dc=null;
   try{ if(micStream) micStream.getTracks().forEach(t=>t.stop()); }catch(e){} micStream=null;
