@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v9"
+VERSION = "tutor-v10"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -87,6 +87,7 @@ const orb=$("orb"), orbLbl=$("orbLbl"), hint=$("hint"), tr=$("transcript"), endB
 
 const tg=window.Telegram&&window.Telegram.WebApp;
 try{ if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor&&tg.setHeaderColor("#0c1322"); } }catch(e){}
+function tgInit(){ return (tg&&tg.initData)?tg.initData:""; }
 
 let pc=null, dc=null, micStream=null, audioCtx=null, live=false, botBubble=null, rafId=null;
 let curBotText="", startedAt=0;
@@ -156,7 +157,7 @@ async function start(){
 
   let tok;
   try{
-    const r=await fetch("/session",{method:"POST"}); tok=await r.json();
+    const r=await fetch("/session",{method:"POST", headers:{"X-Telegram-Init-Data":tgInit()}}); tok=await r.json();
     if(!r.ok||!tok.value) throw new Error((tok&&tok.error)?String(tok.error).slice(0,120):("HTTP "+r.status));
   }catch(e){ stop("error"); setErr("Could not start session: "+e.message); return; }
 
@@ -206,7 +207,7 @@ function meter(stream){
 async function saveConversation(){
   if(!transcriptLog.length && !requests.length) return;
   try{
-    await fetch("/save",{ method:"POST", headers:{"Content-Type":"application/json"},
+    await fetch("/save",{ method:"POST", headers:{"Content-Type":"application/json","X-Telegram-Init-Data":tgInit()},
       body:JSON.stringify({ transcript:transcriptLog, requests, started_at:startedAt, ended_at:Date.now() }) });
   }catch(e){}
 }

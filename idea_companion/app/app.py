@@ -326,6 +326,56 @@ def _recent_memory(limit=8):
         return ""
 
 
+def _validate_init_data(init_data, bot_token):
+    """Validate a Telegram Mini App initData string. Returns the user dict if the signature
+    is valid (proves it came from this bot), else None. Standard algorithm:
+    https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app"""
+    import hashlib
+    import hmac
+    import json
+    from urllib.parse import parse_qsl
+
+    if not init_data or not bot_token:
+        return None
+    try:
+        pairs = dict(parse_qsl(init_data, keep_blank_values=True))
+        received = pairs.pop("hash", None)
+        if not received:
+            return None
+        check = "\n".join(f"{k}={pairs[k]}" for k in sorted(pairs))
+        secret = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+        calc = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(calc, received):
+            return None
+        return json.loads(pairs.get("user", "{}"))
+    except Exception:
+        return None
+
+
+def _authorized(request):
+    """(ok, reason). Validates Telegram identity and, if IC_OWNER_USER_ID is set, restricts
+    to the owner. Enforced only when IC_REQUIRE_AUTH is truthy (so it can roll out safely)."""
+    import os as _os
+
+    user = _validate_init_data(request.headers.get("x-telegram-init-data", ""), _os.environ.get("TELEGRAM_BOT_TOKEN"))
+    if user is None:
+        return False, "invalid or missing Telegram initData"
+    owner = _os.environ.get("IC_OWNER_USER_ID")
+    if owner and str(user.get("id")) != str(owner):
+        return False, f"user {user.get('id')} is not the owner"
+    return True, f"ok (user {user.get('id')})"
+
+
+def _auth_gate(request, where, JSONResponse, no_store):
+    """Returns a 401 response if auth is required and the request is not authorized; else None."""
+    require = os.environ.get("IC_REQUIRE_AUTH", "0").lower() not in ("", "0", "false", "no")
+    ok, reason = _authorized(request)
+    print(f"[auth] {where}: {reason} (enforced={require})")
+    if require and not ok:
+        return JSONResponse({"error": "unauthorized"}, status_code=401, headers=no_store)
+    return None
+
+
 app = modal.App("idea-companion")
 
 image = (
@@ -368,7 +418,10 @@ def web():
         }
 
     @api.post("/session")
-    async def session():
+    async def session(request: Request):
+        denied = _auth_gate(request, "session", JSONResponse, no_store)
+        if denied is not None:
+            return denied
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             return JSONResponse({"error": "OPENAI_API_KEY not set on server"}, status_code=500)
@@ -425,6 +478,9 @@ def web():
         turns into a finished report)."""
         from datetime import datetime, timezone
 
+        denied = _auth_gate(request, "save", JSONResponse, no_store)
+        if denied is not None:
+            return denied
         try:
             body = await request.json()
         except Exception:
