@@ -109,3 +109,23 @@ For Idea Companion, the Notion version is:
 - Learning record: what changed in JJ's understanding.
 - Practice loop: a tiny exercise with feedback criteria.
 - Quiz: active recall for later.
+
+## Notion Worker Migration
+
+The fancier architecture is:
+
+- Modal: realtime Telegram Mini App, microphone, OpenAI Realtime token, Conversation row, Report row.
+- Notion Worker: Report row to finished teaching workspace.
+- Modal fallback: old report builder stays available until the Worker has passed one live run.
+
+Demo wording:
+
+> The live capture layer needs browser audio, so it stays on Modal. But the learning system itself runs inside Notion: the Report row triggers a Notion Worker, and the Worker turns it into a teachable page.
+
+Proof to show:
+
+1. Health endpoint shows `has_notion_worker: true`.
+2. Report row starts as `Requested`.
+3. Worker flips it to `In progress`.
+4. Worker flips it to `Ready`.
+5. Finished page has mission, concepts, glossary candidates, practice loop, learning record, quiz, sources, and image.

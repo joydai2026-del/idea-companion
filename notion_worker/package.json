@@ -1,0 +1,16 @@
+{
+  "name": "idea-companion-notion-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@notionhq/workers": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}

@@ -22,9 +22,24 @@ For the demo, the product is not just the voice interface. The product is the lo
 - Smoke test: `https://joydai2026-del--idea-companion-smoke-web.modal.run/`
 - Smoke health: `https://joydai2026-del--idea-companion-smoke-web.modal.run/health`
 
+## Notion Worker Split
+
+Modal still owns the realtime Mini App because Telegram needs a public HTML page and WebRTC audio. Notion Worker owns the lesson-building step.
+
+Current flow on `feat/notion-worker-reports`:
+
+1. Modal creates the Conversation row.
+2. Modal creates the Report row.
+3. If `IC_NOTION_WORKER_WEBHOOK_URL` is configured, Modal dispatches the report payload to Notion Worker.
+4. Notion Worker builds the teaching workspace and flips the Report to `Ready`.
+5. If Worker dispatch fails, Modal falls back to the existing report builder.
+
+Worker code lives in `notion_worker/`.
+
 ## Repo State
 
 - Demo branch: `feat/idea-companion`
+- Worker migration branch: `feat/notion-worker-reports`
 - Roadmap branch: `feat/phase-1-weekly-review`
 - Default branch: `feat/idea-companion`
 

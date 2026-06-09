@@ -308,6 +308,31 @@ def _notion_upload_image(img_bytes, filename="illustration.png"):
         return None
 
 
+def _dispatch_notion_worker(payload):
+    """Ask the Notion Worker to build the report. Returns True when accepted.
+    Modal remains the fallback until the Worker path is proven live."""
+    import httpx
+
+    url = os.environ.get("IC_NOTION_WORKER_WEBHOOK_URL")
+    secret = os.environ.get("IC_NOTION_WORKER_SECRET")
+    if not (url and secret):
+        return False
+    try:
+        r = httpx.post(
+            url,
+            headers={"X-IC-Worker-Secret": secret, "Content-Type": "application/json"},
+            json=payload,
+            timeout=20,
+        )
+        if 200 <= r.status_code < 300:
+            print("[save] notion worker accepted report")
+            return True
+        print(f"[save] notion worker rejected report {r.status_code}: {r.text[:240]}")
+    except Exception as exc:
+        print("[save] notion worker dispatch failed:", exc)
+    return False
+
+
 def _image_block(file_upload_id):
     return {"object": "block", "type": "image", "image": {"type": "file_upload", "file_upload": {"id": file_upload_id}}}
 
@@ -542,6 +567,7 @@ def web():
             "has_conversations_db": bool(os.environ.get("IC_CONVERSATIONS_DB")),
             "has_reports_db": bool(os.environ.get("IC_REPORTS_DB")),
             "has_owner_user": bool(os.environ.get("IC_OWNER_USER_ID")),
+            "has_notion_worker": bool(os.environ.get("IC_NOTION_WORKER_WEBHOOK_URL")),
             "auth_enforced": require_auth,
             "artifact_template": "teaching-workspace-v3",
         }
@@ -695,15 +721,25 @@ def web():
                                 ("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "") for t in transcript
                             )[:1800]
                             try:
-                                process_report.spawn(
-                                    report_id=rid,
-                                    report_url=rj.get("url"),
-                                    topic=topic,
-                                    depth=rq.get("depth") or "deep",
-                                    typ=props["Type"]["select"]["name"],
-                                    context_text=ctx,
-                                    visuals=bool(rq.get("visuals")),
-                                )
+                                worker_payload = {
+                                    "report_id": rid,
+                                    "report_url": rj.get("url"),
+                                    "topic": topic,
+                                    "depth": rq.get("depth") or "deep",
+                                    "type": props["Type"]["select"]["name"],
+                                    "context_text": ctx,
+                                    "visuals": bool(rq.get("visuals")),
+                                }
+                                if not _dispatch_notion_worker(worker_payload):
+                                    process_report.spawn(
+                                        report_id=rid,
+                                        report_url=rj.get("url"),
+                                        topic=topic,
+                                        depth=rq.get("depth") or "deep",
+                                        typ=props["Type"]["select"]["name"],
+                                        context_text=ctx,
+                                        visuals=bool(rq.get("visuals")),
+                                    )
                             except Exception as exc:
                                 print("[save] spawn failed:", exc)
 
