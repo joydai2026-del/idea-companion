@@ -78,7 +78,7 @@ PAGE_HTML = r"""<!doctype html>
   </div>
 
   <div class="transcript" id="transcript">
-    <div class="empty" id="empty">Demo prompt: "Explain why Notion is useful as a personal product backend. Then write a deep report with pictures, concept cards, and quiz questions in Notion."</div>
+    <div class="empty" id="empty">Demo prompt: "Teach me why Notion is useful as a personal product backend. Then create a Notion lesson with pictures, concept cards, glossary terms, and a quiz."</div>
   </div>
 
   <div class="err" id="err"></div>

@@ -10,7 +10,7 @@ The claim:
 
 Idea Companion proves that with one loop:
 
-Voice conversation -> Notion Conversation row -> Notion Report request -> Modal worker writes a study artifact -> Telegram links back to Notion.
+Voice conversation -> Notion Conversation row -> Notion Report request -> Modal worker writes a teaching workspace -> Telegram links back to Notion.
 
 ## What To Show
 
@@ -21,7 +21,7 @@ Voice conversation -> Notion Conversation row -> Notion Report request -> Modal 
 | Save | In-app note and Telegram ping | A voice command becomes structured Notion work. |
 | Organize | Conversations DB | Notion stores the raw memory. |
 | Produce | Reports DB | Notion tracks requested, in progress, and ready learning artifacts. |
-| Read | Finished report page | Notion becomes the study surface with summary, concept cards, quiz, citations, and images. |
+| Read | Finished report page | Notion becomes the study surface with mission, concept cards, glossary candidates, practice loop, quiz, citations, and images. |
 
 ## Notion Page Structure
 
@@ -41,7 +41,7 @@ For the cleanest demo, the Notion page should have four visible sections:
    - A compact gallery of finished reports.
    - Use Topic as the card title.
    - Use cover images when available.
-   - Open one report and show the concept cards plus quiz questions.
+   - Open one report and show the mission tie-in, concept cards, glossary candidates, practice loop, learning record, and quiz questions.
 
 4. Demo control panel
    - Live app URL.
@@ -61,7 +61,7 @@ For the cleanest demo, the Notion page should have four visible sections:
 | Report request creates a Report row | Voice command becomes structured work. |
 | Report row becomes Ready | Worker completed the Notion artifact. |
 | Telegram ping includes Notion link | Walk-to-desk handoff works. |
-| Finished report has concept cards and quiz | The product teaches and helps JJ retain, not just capture notes. |
+| Finished report has mission, concept cards, glossary, practice, and quiz | The product teaches and helps JJ retain, not just capture notes. |
 
 ## Critical Feedback
 
@@ -93,5 +93,19 @@ The strongest version of the demo is a two-minute transformation:
 3. End the session.
 4. Watch a new Conversation page and Report page appear.
 5. Open the Report page after it flips to Ready.
-6. Point to the finished artifact sections: 5-bullet summary, walking explanation, concept cards, quiz, sources, image.
-7. Close by saying: "The voice agent captures the moment. Notion turns it into memory, study, and retrieval."
+6. Point to the finished artifact sections: mission tie-in, 5-bullet summary, walking explanation, concept cards, glossary candidates, practice loop, learning record, quiz, sources, image.
+7. Close by saying: "The voice agent captures the moment. Notion turns it into memory, teaching, practice, and retrieval."
+
+## Teach Skill Pattern
+
+This demo borrows the best part of Matt Pocock's `teach` skill: learning should be stateful. A good teaching workspace has a mission, trusted resources, reference material, learning records, and tight feedback loops.
+
+For Idea Companion, the Notion version is:
+
+- Mission tie-in: why this topic matters to JJ.
+- Trusted resources: current sources worth revisiting.
+- Concept cards: the raw units of future lessons.
+- Glossary candidates: terms to promote only after JJ can use them.
+- Learning record: what changed in JJ's understanding.
+- Practice loop: a tiny exercise with feedback criteria.
+- Quiz: active recall for later.

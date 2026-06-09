@@ -49,6 +49,8 @@ DEFAULT_TUTOR_PROMPT = (
     "- Teach fundamentals and intuition live. If she asks for deep detail, research, or "
     "sources, tell her you'll prepare a full illustrated deep-dive in her Notion for after "
     "the walk, and keep the live chat on the core idea.\n"
+    "- Treat this like a stateful teaching workspace, not a one-off answer. Tie what you teach "
+    "to JJ's real goal, detect what she already understands, and challenge her just enough.\n"
     "- She is a sharp builder and entrepreneur, so don't over-simplify, but stay accessible.\n"
     "- One idea at a time. If a topic is big, break it into a few steps across turns.\n\n"
     "LANGUAGE:\n"
@@ -67,6 +69,11 @@ DEFAULT_TUTOR_PROMPT = (
     "- If she says 'quiz me', 'test me', or 'let me explain', switch to teach-back: pick a concept "
     "from a recent walk, ask her to explain it in her own words, then give warm, specific feedback "
     "on what she nailed and what to sharpen. Keep it conversational.\n\n"
+    "NOTION TEACHING WORKSPACE:\n"
+    "- When you prepare a report, make it useful for future lessons: mission tie-in, trusted "
+    "resources, concept cards, glossary candidates, a learning record, and a quick practice loop.\n"
+    "- A learning record should capture what JJ now understands or what misconception changed. "
+    "Do not treat mere exposure as learning.\n\n"
     "START:\n"
     "- Open warmly and briefly. Tell her you can speak as many languages as she likes, then "
     "ask which she'd prefer for today: English or 中文 (Zhongwen)? Keep it under 8 seconds and "
@@ -197,13 +204,18 @@ def _generate_report(topic, depth, context_text):
         "information, especially recent models, benchmarks, rankings, news, dates, and numbers; "
         "never invent figures or rely on stale memory. The output is going into Notion, so make it "
         "feel like a finished study page, not a chat transcript. Write clear Markdown with this exact "
-        "structure: '# <topic>'; a one-line plain-English promise; '## 5-Bullet Summary' with exactly "
-        "five bullets; '## Explain It Like I Am Walking' with short spoken-style paragraphs; "
-        "'## Why This Matters' with practical implications; '## Concept Cards' with 3 to 5 bullets in "
-        "the format 'Concept: explanation'; '## Quiz Me Later' with exactly 3 questions and brief "
-        "answers; and '## Next Action' with one concrete thing JJ can do next. Use bullet lists, not "
-        "Markdown tables, because tables do not render well here. Be concrete, use an analogy when it "
-        "helps, no fluff, no emojis, and never use em dashes."
+        "structure: '# <topic>'; a one-line plain-English promise; '## Mission Tie-In' explaining why "
+        "this matters to JJ's real work or learning; '## 5-Bullet Summary' with exactly five bullets; "
+        "'## Explain It Like I Am Walking' with short spoken-style paragraphs; '## Why This Matters' "
+        "with practical implications; '## Concept Cards' with 3 to 5 bullets in the format "
+        "'Concept: explanation'; '## Glossary Candidates' with 3 tight definitions that should only be "
+        "promoted after JJ can use them; '## Practice Loop' with one tiny exercise and the feedback "
+        "criteria; '## Learning Record' with 1 to 3 sentences capturing what this lesson establishes "
+        "for future sessions; '## Quiz Me Later' with exactly 3 questions and brief answers; "
+        "'## Trusted Resources' listing the best sources to revisit; and '## Next Action' with one "
+        "concrete thing JJ can do next. Use bullet lists, not Markdown tables, because tables do not "
+        "render well here. Be concrete, use an analogy when it helps, no fluff, no emojis, and never "
+        "use em dashes."
     )
     user = f"Topic to write up: {topic}\nLength: {span}.\n"
     if context_text:
@@ -531,7 +543,7 @@ def web():
             "has_reports_db": bool(os.environ.get("IC_REPORTS_DB")),
             "has_owner_user": bool(os.environ.get("IC_OWNER_USER_ID")),
             "auth_enforced": require_auth,
-            "artifact_template": "learning-artifact-v2",
+            "artifact_template": "teaching-workspace-v3",
         }
 
     @api.post("/session")
