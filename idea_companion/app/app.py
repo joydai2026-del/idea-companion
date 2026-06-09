@@ -536,6 +536,7 @@ SECRETS = [
     modal.Secret.from_name("idea-companion-smoke"),
     modal.Secret.from_name("idea-companion-notion"),
     modal.Secret.from_name("idea-companion-telegram"),
+    modal.Secret.from_name("idea-companion-worker"),
 ]
 
 

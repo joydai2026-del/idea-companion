@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
-    "build": "tsc --noEmit"
+    "build": "tsc"
   },
   "dependencies": {
-    "@notionhq/workers": "^0.1.0"
+    "@notionhq/workers": "0.4.0"
   },
   "devDependencies": {
     "typescript": "^5.8.0"

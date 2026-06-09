@@ -5,7 +5,8 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true,
+    "rootDir": "src",
+    "outDir": "dist",
     "lib": ["ES2022", "DOM"]
   },
   "include": ["src/**/*.ts"]

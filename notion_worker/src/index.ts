@@ -244,7 +244,8 @@ async function uploadImage(bytes: Uint8Array): Promise<string | null> {
   }
   const upload = (await create.json()) as { id: string };
   const form = new FormData();
-  form.append("file", new Blob([bytes], { type: "image/png" }), "lesson-diagram.png");
+  const imageBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  form.append("file", new Blob([imageBuffer], { type: "image/png" }), "lesson-diagram.png");
   const send = await fetch(`https://api.notion.com/v1/file_uploads/${upload.id}/send`, {
     method: "POST",
     headers: {
