@@ -10,7 +10,7 @@ Idea Companion turns a walk into a structured Notion learning system:
 2. The realtime tutor teaches the basics hands-free in English or Chinese.
 3. JJ asks for a report, infographic, or saved insight by voice.
 4. The app saves the conversation to Notion.
-5. A Modal worker fills the Notion report page with web-grounded notes, citations, and optional images.
+5. A Modal worker fills the Notion report page with a study-ready artifact: summary, walking explanation, concept cards, quiz questions, citations, and optional images.
 6. Telegram pings JJ when the Notion page is ready.
 
 For the demo, the product is not just the voice interface. The product is the loop from voice capture to Notion memory to finished learning artifact.
@@ -26,7 +26,7 @@ For the demo, the product is not just the voice interface. The product is the lo
 
 - Demo branch: `feat/idea-companion`
 - Roadmap branch: `feat/phase-1-weekly-review`
-- Default branch: `main`
+- Default branch: `feat/idea-companion`
 
 `feat/idea-companion` is the branch to use for the Notion demo. `feat/phase-1-weekly-review` contains the earlier weekly-review core and tests, but it is roadmap scope for this demo.
 
@@ -62,6 +62,6 @@ Use the live Notion page as the center of the demo:
 5. End the walk.
 6. Show the Conversation row created in Notion.
 7. Show the Report row moving from Requested to Ready.
-8. Open the finished report page with sources and image.
+8. Open the finished report page and point out the summary, concept cards, quiz, sources, and image.
 
-The key line: "Notion is where the product remembers, organizes, and becomes useful after the conversation ends."
+The key line: "Notion is where the product remembers, organizes, and turns a walk into a reusable learning asset."

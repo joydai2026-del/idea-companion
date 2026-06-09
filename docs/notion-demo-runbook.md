@@ -10,7 +10,7 @@ The claim:
 
 Idea Companion proves that with one loop:
 
-Voice conversation -> Notion Conversation row -> Notion Report request -> Modal worker writes report -> Telegram links back to Notion.
+Voice conversation -> Notion Conversation row -> Notion Report request -> Modal worker writes a study artifact -> Telegram links back to Notion.
 
 ## What To Show
 
@@ -21,7 +21,7 @@ Voice conversation -> Notion Conversation row -> Notion Report request -> Modal 
 | Save | In-app note and Telegram ping | A voice command becomes structured Notion work. |
 | Organize | Conversations DB | Notion stores the raw memory. |
 | Produce | Reports DB | Notion tracks requested, in progress, and ready learning artifacts. |
-| Read | Finished report page | Notion becomes the study surface with citations and images. |
+| Read | Finished report page | Notion becomes the study surface with summary, concept cards, quiz, citations, and images. |
 
 ## Notion Page Structure
 
@@ -41,6 +41,7 @@ For the cleanest demo, the Notion page should have four visible sections:
    - A compact gallery of finished reports.
    - Use Topic as the card title.
    - Use cover images when available.
+   - Open one report and show the concept cards plus quiz questions.
 
 4. Demo control panel
    - Live app URL.
@@ -60,6 +61,7 @@ For the cleanest demo, the Notion page should have four visible sections:
 | Report request creates a Report row | Voice command becomes structured work. |
 | Report row becomes Ready | Worker completed the Notion artifact. |
 | Telegram ping includes Notion link | Walk-to-desk handoff works. |
+| Finished report has concept cards and quiz | The product teaches and helps JJ retain, not just capture notes. |
 
 ## Critical Feedback
 
@@ -79,4 +81,17 @@ If live voice fails:
 2. Show a previously created Conversation page.
 3. Show a Report row.
 4. Open a finished report with sources and image.
-5. Say: "The live capture layer is phone-dependent. The Notion product loop is the important part."
+5. Show the concept cards and quiz.
+6. Say: "The live capture layer is phone-dependent. The Notion product loop is the important part."
+
+## Fancy Demo Upgrade
+
+The strongest version of the demo is a two-minute transformation:
+
+1. Start on the Notion dashboard and show the Reports board grouped by Status.
+2. Ask the voice tutor for a deep report with pictures.
+3. End the session.
+4. Watch a new Conversation page and Report page appear.
+5. Open the Report page after it flips to Ready.
+6. Point to the finished artifact sections: 5-bullet summary, walking explanation, concept cards, quiz, sources, image.
+7. Close by saying: "The voice agent captures the moment. Notion turns it into memory, study, and retrieval."

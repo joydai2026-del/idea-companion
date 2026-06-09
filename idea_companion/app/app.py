@@ -190,15 +190,20 @@ def _generate_report(topic, depth, context_text):
 
     key = os.environ["OPENAI_API_KEY"]
     model = os.environ.get("IC_REPORT_MODEL", "gpt-4o-search-preview")
-    span = "a thorough but accessible deep dive (about 500-700 words)" if depth == "deep" else "a concise summary (about 250 words)"
+    span = "a thorough but accessible learning artifact" if depth == "deep" else "a concise learning artifact"
     system = (
         "You are a sharp tutor writing a follow-up learning report for a smart builder and "
         "entrepreneur after a walking conversation. Search the web for CURRENT, accurate "
         "information, especially recent models, benchmarks, rankings, news, dates, and numbers; "
-        "never invent figures or rely on stale memory. Write clear Markdown: a one-line intro, then "
-        "2 to 4 '##' sections, with bullet points where useful (use bullet lists, not Markdown "
-        "tables, they do not render here). Be concrete, use an analogy when it helps, no fluff, no "
-        "emojis, and never use em dashes."
+        "never invent figures or rely on stale memory. The output is going into Notion, so make it "
+        "feel like a finished study page, not a chat transcript. Write clear Markdown with this exact "
+        "structure: '# <topic>'; a one-line plain-English promise; '## 5-Bullet Summary' with exactly "
+        "five bullets; '## Explain It Like I Am Walking' with short spoken-style paragraphs; "
+        "'## Why This Matters' with practical implications; '## Concept Cards' with 3 to 5 bullets in "
+        "the format 'Concept: explanation'; '## Quiz Me Later' with exactly 3 questions and brief "
+        "answers; and '## Next Action' with one concrete thing JJ can do next. Use bullet lists, not "
+        "Markdown tables, because tables do not render well here. Be concrete, use an analogy when it "
+        "helps, no fluff, no emojis, and never use em dashes."
     )
     user = f"Topic to write up: {topic}\nLength: {span}.\n"
     if context_text:
@@ -293,6 +298,32 @@ def _notion_upload_image(img_bytes, filename="illustration.png"):
 
 def _image_block(file_upload_id):
     return {"object": "block", "type": "image", "image": {"type": "file_upload", "file_upload": {"id": file_upload_id}}}
+
+
+def _divider_block():
+    return {"object": "block", "type": "divider", "divider": {}}
+
+
+def _callout_block(text):
+    return {
+        "object": "block",
+        "type": "callout",
+        "callout": {
+            "rich_text": [{"type": "text", "text": {"content": text[:1900]}}],
+            "icon": {"type": "emoji", "emoji": "🧠"},
+        },
+    }
+
+
+def _learning_artifact_header(topic):
+    return [
+        _callout_block(
+            "Created from a walking conversation. Notion is now the study surface: skim the summary, "
+            "review the concept cards, then use the quiz questions for active recall."
+        ),
+        _para(f"Topic: {topic}"),
+        _divider_block(),
+    ]
 
 
 def _summarize_conversation(transcript_text):
@@ -500,6 +531,7 @@ def web():
             "has_reports_db": bool(os.environ.get("IC_REPORTS_DB")),
             "has_owner_user": bool(os.environ.get("IC_OWNER_USER_ID")),
             "auth_enforced": require_auth,
+            "artifact_template": "learning-artifact-v2",
         }
 
     @api.post("/session")
@@ -734,7 +766,7 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
     set_status("In progress")
     try:
         if typ == "insight":
-            blocks = [_para(topic)]
+            blocks = _learning_artifact_header("Saved insight") + [_para(topic)]
         elif typ == "infographic":
             img = _generate_image(
                 f"A clean, friendly flat-illustration infographic explaining '{topic}' for a curious "
@@ -743,10 +775,10 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
             fid = _notion_upload_image(img, "infographic.png") if img else None
             md = _generate_report(topic, "quick", context_text)
             head = [_image_block(fid)] if fid else [_para("(Could not generate the image this time; here is the explanation.)")]
-            blocks = head + _md_to_blocks(md)
+            blocks = _learning_artifact_header(topic) + head + _md_to_blocks(md)
         else:
             md = _generate_report(topic, depth, context_text)
-            blocks = _md_to_blocks(md)
+            blocks = _learning_artifact_header(topic) + _md_to_blocks(md)
             if visuals:
                 img = _generate_image(
                     f"A clean, friendly flat-illustration diagram that visually explains '{topic}' for a "
@@ -754,7 +786,7 @@ def process_report(report_id, report_url, topic, depth, typ, context_text, visua
                 )
                 fid = _notion_upload_image(img, "illustration.png") if img else None
                 if fid:
-                    blocks = blocks[:1] + [_image_block(fid)] + blocks[1:]
+                    blocks = blocks[:3] + [_image_block(fid)] + blocks[3:]
         appended_ok = append(blocks)
         if appended_ok:
             set_status("Ready")
