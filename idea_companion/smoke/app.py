@@ -24,7 +24,6 @@ Deploy:  MODAL_PROFILE=<ws> modal deploy idea_companion/smoke/app.py
 import os
 
 import modal
-
 from page import PAGE_HTML
 
 OPENAI_CLIENT_SECRETS = "https://api.openai.com/v1/realtime/client_secrets"

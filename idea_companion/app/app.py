@@ -28,7 +28,6 @@ Deploy:  MODAL_PROFILE=joydai2026-del modal deploy idea_companion/app/app.py
 import os
 
 import modal
-
 from page import PAGE_HTML, VERSION
 
 OPENAI_CLIENT_SECRETS = "https://api.openai.com/v1/realtime/client_secrets"
@@ -245,6 +244,7 @@ def _telegram_ping(text):
 def _generate_image(prompt, size="1024x1024"):
     """Generate a PNG with gpt-image-1; returns raw bytes (or None on failure)."""
     import base64
+
     import httpx
 
     key = os.environ["OPENAI_API_KEY"]
@@ -487,6 +487,7 @@ def web():
 
     @api.get("/health")
     def health():
+        require_auth = os.environ.get("IC_REQUIRE_AUTH", "0").lower() not in ("", "0", "false", "no")
         return {
             "ok": True,
             "version": VERSION,
@@ -494,6 +495,11 @@ def web():
             "voice": os.environ.get("OPENAI_REALTIME_VOICE", DEFAULT_VOICE),
             "turn_detection": os.environ.get("IC_TURN_DETECTION", DEFAULT_TURN),
             "has_key": bool(os.environ.get("OPENAI_API_KEY")),
+            "has_notion_token": bool(os.environ.get("NOTION_API_TOKEN")),
+            "has_conversations_db": bool(os.environ.get("IC_CONVERSATIONS_DB")),
+            "has_reports_db": bool(os.environ.get("IC_REPORTS_DB")),
+            "has_owner_user": bool(os.environ.get("IC_OWNER_USER_ID")),
+            "auth_enforced": require_auth,
         }
 
     @api.post("/session")

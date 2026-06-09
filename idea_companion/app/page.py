@@ -27,6 +27,7 @@ PAGE_HTML = r"""<!doctype html>
   header { padding: 18px 20px 6px; text-align: center; flex: 0 0 auto; }
   header h1 { font-size: 21px; margin: 0; font-weight: 700; letter-spacing: .2px; }
   header p { margin: 3px 0 0; font-size: 13px; color: #93a3bd; }
+  .notion-line { margin-top: 7px; font-size: 12px; color: #b7c7e4; }
 
   .orbwrap { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; padding: 10px 0 6px; }
   .orb {
@@ -51,7 +52,10 @@ PAGE_HTML = r"""<!doctype html>
   .bubble.tutor { align-self: flex-start; background: #1b2536; border: 1px solid #283449; border-bottom-left-radius: 5px; }
   .bubble.note { align-self: center; background: #14241c; border: 1px solid #1f5a3a; color: #8fe7b4; font-size: 13.5px; max-width: 92%; text-align: center; }
   .bubble .who { display:block; font-size: 11px; opacity: .65; margin-bottom: 2px; }
-  .empty { color: #6f80a0; text-align: center; font-size: 13.5px; margin-top: 14px; }
+  .empty {
+    color: #6f80a0; text-align: center; font-size: 13.5px; margin: 14px auto 0;
+    max-width: min(92vw, 680px); padding: 0 10px; overflow-wrap: anywhere;
+  }
 
   footer { flex: 0 0 auto; padding: 10px 20px calc(16px + env(safe-area-inset-bottom)); }
   button#end {
@@ -65,15 +69,16 @@ PAGE_HTML = r"""<!doctype html>
   <header>
     <h1>Idea Companion</h1>
     <p>Your walking tutor · 你的步行私教</p>
+    <div class="notion-line">Talk now. Notion remembers, organizes, and writes the follow-up.</div>
   </header>
 
   <div class="orbwrap">
     <div class="orb" id="orb"><span class="lbl" id="orbLbl">Tap to start</span></div>
-    <div class="hint" id="hint">Tap, allow the mic, then just talk.</div>
+    <div class="hint" id="hint">Tap, allow the mic, then ask for a Notion report.</div>
   </div>
 
   <div class="transcript" id="transcript">
-    <div class="empty" id="empty">Your conversation will appear here. Try: "Explain X", or "write me a deep report on X and save it to Notion".</div>
+    <div class="empty" id="empty">Demo prompt: "Explain why Notion is useful as a personal product backend. Then write a deep report with pictures and save it to Notion."</div>
   </div>
 
   <div class="err" id="err"></div>
