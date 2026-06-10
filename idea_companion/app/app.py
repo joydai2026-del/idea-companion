@@ -681,7 +681,7 @@ def web():
             "Requests": {"number": len(reqs)},
             "Language": {"select": {"name": lang}},
         }
-        conv_url, report_urls, errors = None, [], []
+        conv_url, conv_id, report_urls, errors = None, None, [], []
         async with httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
                 "https://api.notion.com/v1/pages",
@@ -691,7 +691,9 @@ def web():
             if r.status_code >= 400:
                 errors.append("conversation: " + r.text[:300])
             else:
-                conv_url = r.json().get("url")
+                cj = r.json()
+                conv_url = cj.get("url")
+                conv_id = cj.get("id")  # link each report back to this walk
             if rep_db:
                 for rq in reqs:
                     typ = rq.get("type", "report")
@@ -704,6 +706,8 @@ def web():
                     }
                     if rq.get("depth") in ("quick", "deep"):
                         props["Depth"] = {"select": {"name": rq["depth"]}}
+                    if conv_id:
+                        props["Conversation"] = {"relation": [{"id": conv_id}]}
                     rr = await client.post(
                         "https://api.notion.com/v1/pages",
                         headers=nheaders,
