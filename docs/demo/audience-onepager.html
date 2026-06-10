@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16161a;--muted:#6b6a73;--bg:#fbfaf7;--card:#fff;--line:#eae6dd;
+    --violet:#5b3df5;--violet2:#7a5cff;--violet-soft:#efeaff;
+    --teal:#0d9488;--teal-soft:#e0f2f0;--blue:#2563c9;--blue-soft:#e8f0fe;
+    --green:#0a8f5b;--green-soft:#e6f5ee;--amber:#c2851b;--rose:#c2255c;
+    --ink2:#101012;--shadow:0 1px 2px rgba(20,18,12,.04),0 10px 30px rgba(20,18,12,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans","Noto Sans SC",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 70px}
+  .band{padding:54px 0 8px}
+  .kick{font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--violet)}
+  .kick.t{color:var(--teal)} .kick.b{color:var(--blue)} .kick.a{color:var(--amber)}
+  h2{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:8px 0 6px;line-height:1.12}
+  .sub{font-size:16px;color:var(--muted);max-width:660px}
+  @media(max-width:640px){h2{font-size:24px}}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#1b0b54 0%,#5b3df5 52%,#0d9488 100%);color:#fff;border-radius:0 0 30px 30px;padding:60px 22px 56px;position:relative;overflow:hidden;text-align:center}
+  .hero:before,.hero:after{content:"";position:absolute;border-radius:50%}
+  .hero:before{width:420px;height:420px;right:-130px;top:-150px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+  .hero:after{width:360px;height:360px;left:-120px;bottom:-180px;background:radial-gradient(circle,rgba(13,148,136,.4),transparent 70%)}
+  .hero .in{position:relative;max-width:880px;margin:0 auto}
+  .hero .eyebrow{font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;opacity:.9}
+  .hero h1{font-size:56px;font-weight:800;letter-spacing:-.03em;margin:14px 0 12px;line-height:1}
+  @media(max-width:640px){.hero h1{font-size:40px}}
+  .hero .vision{font-size:21px;font-weight:600;max-width:680px;margin:0 auto;opacity:.97;line-height:1.4}
+  @media(max-width:640px){.hero .vision{font-size:17px}}
+  .pills{margin-top:24px;display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:7px 15px;border-radius:999px;font-size:14px;font-weight:600}
+
+  /* WHY */
+  .why{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:40px 26px;box-shadow:var(--shadow);margin-top:30px}
+  .why .big{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.18;max-width:760px;margin:0 auto}
+  .why .big .hl{background:linear-gradient(120deg,var(--violet),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .why .small{margin-top:10px;font-size:17px;color:var(--muted)}
+  .thoughts{display:flex;gap:14px;justify-content:center;margin:26px 0 2px;flex-wrap:wrap}
+  .thought{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#8a8893;background:#f6f4ef;border:1px dashed #ddd8cd;border-radius:999px;padding:8px 14px}
+  .thought.fade1{opacity:.85}.thought.fade2{opacity:.55}.thought.fade3{opacity:.3}
+
+  /* GENERIC DIAGRAM CARD */
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 24px;box-shadow:var(--shadow);margin-top:18px}
+
+  /* WHAT WE BUILT - loop */
+  .loop{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap}
+  .lnode{flex:1;min-width:150px;max-width:210px;text-align:center;padding:6px 8px}
+  .lnode .disc{width:84px;height:84px;border-radius:24px;margin:0 auto 12px;display:grid;place-items:center;font-size:36px;box-shadow:var(--shadow)}
+  .lnode h4{font-size:16px;font-weight:800;margin-bottom:3px}
+  .lnode p{font-size:13px;color:var(--muted);line-height:1.35}
+  .d1{background:var(--violet-soft);border:1.5px solid #d3c6ff}
+  .d2{background:#f0eee9;border:1.5px solid #ded9cd}
+  .d3{background:var(--teal-soft);border:1.5px solid #b6e0da}
+  .d4{background:var(--green-soft);border:1.5px solid #b6e3cd}
+  .larrow{display:flex;align-items:center;font-size:26px;color:#c9c4d6;font-weight:800;padding:0 2px}
+  @media(max-width:640px){.larrow{transform:rotate(90deg);padding:6px 0}.lnode{max-width:none}}
+  .loopnote{text-align:center;margin-top:18px;font-size:14px;font-weight:700;color:var(--violet)}
+
+  /* ARCHITECTURE */
+  .arch{display:flex;flex-direction:column;gap:12px}
+  .lane{display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;gap:0}
+  .lane .mid{text-align:center;color:var(--violet);font-weight:800;font-size:13px}
+  .anode{border-radius:15px;padding:15px 16px;border:1.6px solid}
+  .anode .k{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;opacity:.85}
+  .anode .t{font-weight:800;font-size:16px;margin-top:2px}
+  .anode .d{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .n-phone{background:#f6f4ef;border-color:#ddd8cd}
+  .n-modal{background:var(--violet-soft);border-color:#cbbcff}
+  .n-worker{background:var(--teal-soft);border-color:#8fd3ca}
+  .n-notion{background:var(--ink2);border-color:var(--ink2);color:#fff}.n-notion .d{color:#cfcfd6}.n-notion .k{color:#9b9ba6}
+  .drop{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:11.5px;font-weight:700;padding:3px 0}
+  .drop .v{font-size:18px;color:var(--violet);line-height:1}
+  @media(max-width:640px){.lane{grid-template-columns:1fr}.lane .mid{padding:4px 0}}
+
+  /* HOW IT WORKS - stepper */
+  .steps{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .step{flex:1;min-width:128px;max-width:165px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 12px;text-align:center;box-shadow:var(--shadow);position:relative}
+  .step .no{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:var(--violet);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+  .step .ic{font-size:26px;margin-top:8px}
+  .step h4{font-size:15px;font-weight:800;margin:5px 0 2px}
+  .step p{font-size:12px;color:var(--muted);line-height:1.3}
+
+  /* VISION - horizons staircase */
+  .stair{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:end;margin-top:6px}
+  @media(max-width:720px){.stair{grid-template-columns:1fr 1fr}}
+  .hz{border-radius:18px 18px 0 0;padding:16px 15px 18px;color:#fff;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:flex-end}
+  .hz .tag{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;opacity:.92;margin-bottom:6px}
+  .hz h4{font-size:18px;font-weight:800;line-height:1.1;margin-bottom:5px}
+  .hz p{font-size:13px;line-height:1.4;opacity:.96}
+  .hz1{min-height:150px;background:linear-gradient(180deg,#16b39a,#0d9488)}
+  .hz2{min-height:196px;background:linear-gradient(180deg,#3aa0d6,#2563c9)}
+  .hz3{min-height:242px;background:linear-gradient(180deg,#7a5cff,#5b3df5)}
+  .hz4{min-height:290px;background:linear-gradient(180deg,#8b3df5,#5b1fb0)}
+  .hz .chk{position:absolute;top:13px;right:14px;font-size:11px;font-weight:800;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);padding:2px 8px;border-radius:999px}
+  .closer{margin-top:26px;text-align:center;background:linear-gradient(135deg,#1b0b54,#0d9488);color:#fff;border-radius:22px;padding:34px 26px;box-shadow:var(--shadow)}
+  .closer .q{font-size:24px;font-weight:800;letter-spacing:-.01em;max-width:720px;margin:0 auto;line-height:1.3}
+  @media(max-width:640px){.closer .q{font-size:19px}}
+  .closer .m{margin-top:10px;font-size:15px;opacity:.9}
+  .foot{text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero"><div class="in">
+  <div class="eyebrow">Personal AI · Built on Notion</div>
+  <h1>Idea Companion</h1>
+  <div class="vision">Turn every walk into knowledge. Notion becomes the brain of a personal AI that compounds everything you learn, and grows with you for life.</div>
+  <div class="pills">
+    <span class="pill">🎙️ Talk on a walk</span>
+    <span class="pill">🗄️ Notion is the brain</span>
+    <span class="pill">🧩 Builds itself inside Notion</span>
+    <span class="pill">🌐 EN + 中文</span>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+  <!-- WHY -->
+  <section class="band">
+    <div class="why">
+      <div class="kick">Why</div>
+      <div class="big">Your best thinking happens <span class="hl">in motion, away from a keyboard.</span></div>
+      <div class="small">By the time you sit down, the idea is gone.</div>
+      <div class="thoughts">
+        <div class="thought fade1">💡 a question worth chasing</div>
+        <div class="thought fade2">💡 a connection you spotted</div>
+        <div class="thought fade3">💡 gone</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE BUILT -->
+  <section class="band">
+    <div class="kick t">What we built</div>
+    <h2>A loop that turns a conversation into a lesson you keep.</h2>
+    <div class="diagram">
+      <div class="loop">
+        <div class="lnode"><div class="disc d1">🎙️</div><h4>Speak</h4><p>Talk to a tutor, hands-free, on a walk</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d2">🗄️</div><h4>Notion captures</h4><p>The walk becomes structured memory</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d3">📄</div><h4>A lesson builds</h4><p>Concept cards, quiz, sources, images</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d4">🎧</div><h4>Study + ask</h4><p>Read it, hear it, question it later</p></div>
+      </div>
+      <div class="loopnote">↻ Every loop compounds. Your knowledge gets deeper, not just longer.</div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="band">
+    <div class="kick b">Architecture</div>
+    <h2>Two clouds, one Notion brain. Nothing tied to a laptop.</h2>
+    <div class="diagram"><div class="arch">
+      <div class="lane">
+        <div class="anode n-phone"><div class="k">On the walk</div><div class="t">📱 Telegram Mini App</div><div class="d">A cute robot tutor. Voice in, live captions. Nothing to install.</div></div>
+        <div class="mid">voice →</div>
+        <div class="anode n-modal"><div class="k">Cloud A</div><div class="t">☁️ Modal: capture</div><div class="d">Runs the live voice and writes the Notion rows when the walk ends.</div></div>
+      </div>
+      <div class="drop"><span class="v">↓</span><span>Modal asks Notion to build the lesson</span></div>
+      <div class="lane">
+        <div class="anode n-worker"><div class="k">Cloud B, inside Notion</div><div class="t">🧩 Notion Worker</div><div class="d">Generates the teaching workspace and writes it into the page.</div></div>
+        <div class="mid">→</div>
+        <div class="anode n-notion"><div class="k">The brain</div><div class="t">🗄️ Notion</div><div class="d">Your conversations, reports, and learning, all in one place you own.</div></div>
+      </div>
+      <div class="drop"><span class="v">↓</span><span>A tap-through link comes back to your phone</span></div>
+    </div></div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="band">
+    <div class="kick a">How it works</div>
+    <h2>One walk, six beats.</h2>
+    <div class="diagram"><div class="steps">
+      <div class="step"><div class="no">1</div><div class="ic">🗣️</div><h4>Talk</h4><p>Chat on a walk</p></div>
+      <div class="step"><div class="no">2</div><div class="ic">✋</div><h4>Ask</h4><p>"Make me a report"</p></div>
+      <div class="step"><div class="no">3</div><div class="ic">💾</div><h4>Save</h4><p>Rows land in Notion</p></div>
+      <div class="step"><div class="no">4</div><div class="ic">🧩</div><h4>Build</h4><p>Worker writes the lesson</p></div>
+      <div class="step"><div class="no">5</div><div class="ic">✅</div><h4>Ready</h4><p>Status flips to done</p></div>
+      <div class="step"><div class="no">6</div><div class="ic">🔔</div><h4>Link</h4><p>Pinged to your phone</p></div>
+    </div></div>
+  </section>
+
+  <!-- VISION -->
+  <section class="band">
+    <div class="kick">The vision</div>
+    <h2>From a walk, to a week, to a lifetime.</h2>
+    <p class="sub">Today it captures one walk. The same rails grow into a personal intelligence that knows your whole journey.</p>
+    <div class="diagram"><div class="stair">
+      <div class="hz hz1"><span class="chk">✓ Live</span><div class="tag">Today</div><h4>The Walk</h4><p>Capture and teach. One conversation becomes a lesson you keep.</p></div>
+      <div class="hz hz2"><div class="tag">Next</div><h4>The Week</h4><p>Everything you read, watched, coded, and learned, synthesized into a weekly review you listen to and question on a walk.</p></div>
+      <div class="hz hz3"><div class="tag">Horizon</div><h4>The Year</h4><p>Cross-source insight: what you consumed shaped what you created. A coach that surfaces the right lesson before you need it.</p></div>
+      <div class="hz hz4"><div class="tag">The vision</div><h4>A Lifetime</h4><p>Your second brain: a personal AI that has learned your entire intellectual journey and compounds it, owned by you.</p></div>
+    </div></div>
+  </section>
+
+  <!-- CLOSER -->
+  <section class="band" style="padding-top:30px">
+    <div class="closer">
+      <div class="q">Most AI rents you intelligence. This one compounds yours.</div>
+      <div class="m">Your data. Your keys. Your Notion. Growing with you, for life.</div>
+    </div>
+    <div class="foot">Idea Companion · a personal AI on Notion · bilingual EN + 中文</div>
+  </section>
+
+</div>
+</body>
+</html>
