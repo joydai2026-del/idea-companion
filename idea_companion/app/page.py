@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v15"
+VERSION = "tutor-v16"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -54,6 +54,18 @@ PAGE_HTML = r"""<!doctype html>
   @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-5px); } }
   .robo .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
   @keyframes blink { 0%,93%,100%{ transform: scaleY(1); } 96%{ transform: scaleY(.12); } }
+  /* per-state expressions: idle shows .eyes + .mouth-smile; others swap in via the orb state class */
+  .robo .eye-happy, .robo .eye-think, .robo .mouth-listen, .robo .mouth-talk, .robo .mouth-think { display: none; }
+  .orb.listening .robo .mouth-smile { display: none; }
+  .orb.listening .robo .mouth-listen { display: block; }
+  .orb.speaking .robo .eyes, .orb.speaking .robo .mouth-smile { display: none; }
+  .orb.speaking .robo .eye-happy, .orb.speaking .robo .mouth-talk { display: block; }
+  .orb.connecting .robo .eyes, .orb.connecting .robo .mouth-smile { display: none; }
+  .orb.connecting .robo .eye-think, .orb.connecting .robo .mouth-think { display: block; }
+  .robo .mouth-talk { transform-box: fill-box; transform-origin: center; animation: talk .42s ease-in-out infinite alternate; }
+  @keyframes talk { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+  .orb.connecting .robo .eye-think { transform-box: fill-box; transform-origin: center; animation: look 1.6s ease-in-out infinite; }
+  @keyframes look { 0%,100%{ transform: translateX(-3px); } 50%{ transform: translateX(3px); } }
   .statepill {
     margin-top: 10px; font-size: 12.5px; font-weight: 700; padding: 4px 14px;
     border-radius: 999px; background: #d6f4e8; color: #1d9b76; min-height: 26px;
@@ -109,7 +121,20 @@ PAGE_HTML = r"""<!doctype html>
           <circle cx="86" cy="89" r="3.4" fill="#ffffff"/>
           <circle cx="122" cy="89" r="3.4" fill="#ffffff"/>
         </g>
-        <path d="M91 114 Q100 122 109 114" stroke="#263b34" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+        <path class="mouth-smile" d="M91 114 Q100 122 109 114" stroke="#263b34" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+        <g class="eye-happy">
+          <path d="M72 95 Q82 86 92 95" stroke="#263b34" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M108 95 Q118 86 128 95" stroke="#263b34" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </g>
+        <g class="eye-think">
+          <circle cx="82" cy="90" r="7" fill="#263b34"/>
+          <circle cx="118" cy="90" r="7" fill="#263b34"/>
+          <circle cx="84.5" cy="87" r="2.3" fill="#ffffff"/>
+          <circle cx="120.5" cy="87" r="2.3" fill="#ffffff"/>
+        </g>
+        <ellipse class="mouth-listen" cx="100" cy="116" rx="5" ry="4" fill="#c27c84"/>
+        <ellipse class="mouth-talk" cx="100" cy="115" rx="7" ry="6.5" fill="#c27c84"/>
+        <line class="mouth-think" x1="94" y1="116" x2="106" y2="116" stroke="#263b34" stroke-width="3" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="statepill" id="orbLbl">Tap to start</div>
