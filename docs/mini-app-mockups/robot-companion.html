@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Companion · Robot tutor · 3 takes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Poppins:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#eef0f4;color:#1c1c1e;font-family:Poppins,system-ui,-apple-system,sans-serif;line-height:1.5;padding:34px 18px 80px}
+  .pagehead{max-width:1180px;margin:0 auto 14px}
+  .pagehead .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7280}
+  .pagehead h1{font-size:27px;font-weight:700;margin:8px 0 6px;letter-spacing:-.01em}
+  .pagehead p{font-size:15px;color:#4b5563;max-width:780px}
+  .pagehead .how{margin-top:14px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;padding:13px 16px;font-size:14px;color:#374151;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .pagehead .how b{color:#111}
+  .grid{max-width:1100px;margin:24px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;justify-items:center}
+  @media(max-width:980px){.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:660px){.grid{grid-template-columns:1fr}}
+  .card{display:flex;flex-direction:column;align-items:center}
+  .cap{margin-top:16px;text-align:center;max-width:300px}
+  .cap .n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#111;color:#fff;font-weight:700;font-size:13px;margin-bottom:7px}
+  .cap h3{font-size:18px;font-weight:700;margin-bottom:2px}
+  .cap .lang{font-size:12px;font-weight:700;color:#8a8f98;text-transform:uppercase;letter-spacing:.05em}
+  .cap p{font-size:13.5px;color:#5b616e;margin-top:6px}
+  .cap .traits{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  .cap .traits span{font-size:11.5px;font-weight:600;background:#fff;border:1px solid #e3e6ec;border-radius:999px;padding:3px 10px;color:#414754}
+
+  .phone{width:300px;background:#0e0f12;border-radius:42px;padding:11px;box-shadow:0 18px 50px rgba(20,22,30,.22),0 4px 12px rgba(20,22,30,.12)}
+  .scr{height:624px;border-radius:32px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+  .scr .hdr{padding:20px 18px 6px;text-align:center;flex:0 0 auto}
+  .scr .title{font-size:21px;font-weight:700}
+  .scr .sub{font-size:12.5px;margin-top:2px}
+  .scr .notion{font-size:11.5px;margin-top:8px;line-height:1.4;padding:0 8px}
+  .robowrap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding:10px 0 2px}
+  .robo{width:168px;height:168px;display:grid;place-items:center;position:relative}
+  .robo .rings{position:absolute;inset:0;border-radius:50%}
+  .robo .rings:before,.robo .rings:after{content:"";position:absolute;inset:14px;border-radius:50%;border:2px solid var(--ring);opacity:0;animation:ping 2.6s ease-out infinite}
+  .robo .rings:after{animation-delay:1.3s}
+  @keyframes ping{0%{transform:scale(.8);opacity:.5}80%{opacity:0}100%{transform:scale(1.25);opacity:0}}
+  .robo svg{width:150px;height:150px;position:relative;z-index:2;filter:drop-shadow(0 10px 16px rgba(40,50,80,.18))}
+  .robo .float{animation:float 3.4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .statepill{margin-top:6px;font-size:12px;font-weight:700;padding:4px 13px;border-radius:999px}
+  .hint{font-size:11.5px;margin-top:9px;text-align:center;padding:0 18px}
+  .tr{flex:1 1 auto;overflow:hidden;display:flex;flex-direction:column;gap:8px;padding:12px 14px 6px}
+  .b{max-width:84%;padding:9px 12px;font-size:13px;line-height:1.4;border-radius:16px}
+  .b .who{display:block;font-size:10px;font-weight:700;opacity:.7;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+  .b.you{align-self:flex-end;border-bottom-right-radius:5px}
+  .b.tutor{align-self:flex-start;border-bottom-left-radius:5px}
+  .b.note{align-self:center;font-size:12px;font-weight:600;text-align:center;max-width:92%;border-radius:12px}
+  .end{flex:0 0 auto;margin:4px 16px 18px;padding:13px;font-size:14px;font-weight:700;border:none;border-radius:14px;text-align:center;font-family:inherit}
+
+  /* ============ A · MOCHI (mint, squircle face) ============ */
+  .a .scr{background:linear-gradient(178deg,#f0fbf6,#e2f6ee);font-family:Quicksand,sans-serif;--ring:#9fe6cd}
+  .a .title{color:#27413a}.a .sub{color:#3fae8c;font-weight:600}.a .notion{color:#7fa99a}
+  .a .statepill{background:#d6f4e8;color:#1d9b76}
+  .a .hint{color:#86ab9d}
+  .a .b.you{background:#19b88a;color:#fff}
+  .a .b.tutor{background:#fff;color:#3a4f48;box-shadow:0 2px 7px rgba(60,140,110,.12)}.a .b.tutor .who{color:#19b88a}
+  .a .b.note{background:#e7f7f0;color:#178a68;border:1px solid #c8ecdc}
+  .a .end{background:#fff;color:#159a73;box-shadow:0 2px 7px rgba(60,140,110,.14)}
+
+  /* ============ B · PIX (cream, visor face) ============ */
+  .b-t .scr{background:linear-gradient(178deg,#fdf8f0,#fbeede);font-family:Poppins,sans-serif;--ring:#ffc59e}
+  .b-t .title{color:#4a3a2c}.b-t .sub{color:#e07a4e;font-weight:600}.b-t .notion{color:#b39177}
+  .b-t .statepill{background:#ffe6d4;color:#e06a36}
+  .b-t .hint{color:#b39177}
+  .b-t .b.you{background:#ff8a5e;color:#fff}
+  .b-t .b.tutor{background:#fff;color:#5a4636;box-shadow:0 2px 7px rgba(180,110,70,.12)}.b-t .b.tutor .who{color:#ff8a5e}
+  .b-t .b.note{background:#fff1e4;color:#cf6a2a;border:1px solid #f5d7bd}
+  .b-t .end{background:#fff;color:#ef6f3c;box-shadow:0 2px 7px rgba(180,110,70,.14)}
+
+  /* ============ C · BLOOM (lavender, round head) ============ */
+  .c .scr{background:linear-gradient(178deg,#f4f1ff,#eae3fe);font-family:Nunito,sans-serif;--ring:#c7b6ff}
+  .c .title{color:#352d54;font-weight:800}.c .sub{color:#7c5cff;font-weight:800}.c .notion{color:#9d92be}
+  .c .statepill{background:#e7deff;color:#6a45f0}
+  .c .hint{color:#9d92be;font-weight:700}
+  .c .b{font-weight:600}
+  .c .b.you{background:#7c5cff;color:#fff}
+  .c .b.tutor{background:#fff;color:#473f63;box-shadow:0 2px 7px rgba(120,92,255,.14)}.c .b.tutor .who{color:#7c5cff}
+  .c .b.note{background:#f1ecff;color:#6a45f0;border:1px solid #ddd2ff;font-weight:700}
+  .c .end{background:#fff;color:#7a4ff0;box-shadow:0 2px 7px rgba(120,92,255,.16)}
+</style>
+</head>
+<body>
+<div class="pagehead">
+  <div class="eyebrow">Idea Companion · Mini App redesign · robot tutor</div>
+  <h1>A cute robot companion, three takes</h1>
+  <p>A minimalist, kawaii robot tutor. The orb becomes the robot's face: friendly eyes, a tiny smile, soft "listening" rings when it hears you. Clean and simple, not busy or cheap. All bright, light, English-only. Same voice + transcript + report flow underneath.</p>
+  <div class="how"><b>How to choose:</b> pick A, B, or C (or mix, e.g. "B's face, C's lavender"). The face also has Connecting, Listening, and Speaking expressions, I will animate those when I build the real one. Then I wire it into <code>page.py</code> and strip all Chinese from the UI.</div>
+</div>
+
+<div class="grid">
+
+  <!-- ============ A · MOCHI ============ -->
+  <div class="card">
+    <div class="phone a"><div class="scr">
+      <div class="hdr"><div class="title">Idea Companion</div><div class="sub">Your walking tutor</div><div class="notion">Talk now. Notion remembers and writes the follow-up.</div></div>
+      <div class="robowrap">
+        <div class="robo"><div class="rings"></div>
+          <svg class="float" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="cute robot">
+            <line x1="100" y1="40" x2="100" y2="22" stroke="#19b88a" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="100" cy="17" r="6.5" fill="#19b88a"/>
+            <rect x="30" y="84" width="13" height="30" rx="6.5" fill="#bfeede"/>
+            <rect x="157" y="84" width="13" height="30" rx="6.5" fill="#bfeede"/>
+            <rect x="42" y="44" width="116" height="112" rx="42" fill="#ffffff" stroke="#e3ece8" stroke-width="2"/>
+            <rect x="56" y="62" width="88" height="74" rx="32" fill="#f1f8f5"/>
+            <ellipse cx="82" cy="94" rx="11" ry="13.5" fill="#263b34"/>
+            <ellipse cx="118" cy="94" rx="11" ry="13.5" fill="#263b34"/>
+            <circle cx="86" cy="89" r="3.4" fill="#fff"/>
+            <circle cx="122" cy="89" r="3.4" fill="#fff"/>
+            <ellipse cx="66" cy="113" rx="8" ry="5" fill="#ffd2da"/>
+            <ellipse cx="134" cy="113" rx="8" ry="5" fill="#ffd2da"/>
+            <path d="M91 114 Q100 122 109 114" stroke="#263b34" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="statepill">Listening</div>
+        <div class="hint">Just talk, then ask for a Notion report.</div>
+      </div>
+      <div class="tr">
+        <div class="b you">Why is Notion good as a product backend?</div>
+        <div class="b tutor"><span class="who">Tutor</span>One workspace is your database, dashboard, and reading surface at once.</div>
+        <div class="b note">Deep report + pictures · saving to Notion</div>
+      </div>
+      <button class="end">End session</button>
+    </div></div>
+    <div class="cap"><div class="n">A</div><h3>Mochi</h3><div class="lang">Soft mint</div>
+      <p>Squircle head, round sparkly eyes, rosy cheeks. Fresh, clean, gently friendly.</p>
+      <div class="traits"><span>🌿 Mint</span><span>Squircle face</span><span>Calm</span></div>
+    </div>
+  </div>
+
+  <!-- ============ B · PIX ============ -->
+  <div class="card">
+    <div class="phone b-t"><div class="scr">
+      <div class="hdr"><div class="title">Idea Companion</div><div class="sub">Your walking tutor</div><div class="notion">Talk now. Notion remembers and writes the follow-up.</div></div>
+      <div class="robowrap">
+        <div class="robo"><div class="rings"></div>
+          <svg class="float" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="cute robot">
+            <line x1="100" y1="40" x2="100" y2="22" stroke="#ff8a5e" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="100" cy="17" r="6.5" fill="#ff8a5e"/>
+            <rect x="32" y="86" width="12" height="28" rx="6" fill="#ffd2b8"/>
+            <rect x="156" y="86" width="12" height="28" rx="6" fill="#ffd2b8"/>
+            <rect x="44" y="46" width="112" height="108" rx="40" fill="#ffffff" stroke="#f0e3d6" stroke-width="2"/>
+            <rect x="58" y="78" width="84" height="46" rx="23" fill="#2a2f45"/>
+            <circle cx="84" cy="101" r="8" fill="#ffd36b"/>
+            <circle cx="116" cy="101" r="8" fill="#ffd36b"/>
+            <circle cx="87" cy="98" r="2.6" fill="#fff8e6"/>
+            <circle cx="119" cy="98" r="2.6" fill="#fff8e6"/>
+            <ellipse cx="64" cy="132" rx="7.5" ry="4.5" fill="#ffd2c0"/>
+            <ellipse cx="136" cy="132" rx="7.5" ry="4.5" fill="#ffd2c0"/>
+            <path d="M93 134 Q100 140 107 134" stroke="#c98a5e" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="statepill">Listening</div>
+        <div class="hint">Just talk, then ask for a Notion report.</div>
+      </div>
+      <div class="tr">
+        <div class="b you">Why is Notion good as a product backend?</div>
+        <div class="b tutor"><span class="who">Tutor</span>One workspace is your database, dashboard, and reading surface at once.</div>
+        <div class="b note">Deep report + pictures · saving to Notion</div>
+      </div>
+      <button class="end">End session</button>
+    </div></div>
+    <div class="cap"><div class="n">B</div><h3>Pix</h3><div class="lang">Warm cream visor</div>
+      <p>One sleek visor, two glowing dot eyes. The most minimal and "designed" of the three.</p>
+      <div class="traits"><span>🍊 Cream</span><span>Visor face</span><span>Minimal</span></div>
+    </div>
+  </div>
+
+  <!-- ============ C · BLOOM ============ -->
+  <div class="card">
+    <div class="phone c"><div class="scr">
+      <div class="hdr"><div class="title">Idea Companion</div><div class="sub">Your walking tutor</div><div class="notion">Talk now. Notion remembers and writes the follow-up.</div></div>
+      <div class="robowrap">
+        <div class="robo"><div class="rings"></div>
+          <svg class="float" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="cute robot">
+            <line x1="100" y1="38" x2="100" y2="20" stroke="#7c5cff" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="100" cy="15" r="6.5" fill="#7c5cff"/>
+            <rect x="28" y="88" width="13" height="28" rx="6.5" fill="#d8ccff"/>
+            <rect x="159" y="88" width="13" height="28" rx="6.5" fill="#d8ccff"/>
+            <circle cx="100" cy="104" r="58" fill="#ffffff" stroke="#e8e1ff" stroke-width="2"/>
+            <circle cx="100" cy="104" r="40" fill="#f3efff"/>
+            <circle cx="82" cy="100" r="11.5" fill="#2c2747"/>
+            <circle cx="118" cy="100" r="11.5" fill="#2c2747"/>
+            <circle cx="86" cy="95" r="3.6" fill="#fff"/>
+            <circle cx="122" cy="95" r="3.6" fill="#fff"/>
+            <ellipse cx="66" cy="118" rx="8.5" ry="5.5" fill="#ffd0e6"/>
+            <ellipse cx="134" cy="118" rx="8.5" ry="5.5" fill="#ffd0e6"/>
+            <path d="M91 120 Q100 129 109 120" stroke="#2c2747" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="statepill">Listening</div>
+        <div class="hint">Just talk, then ask for a Notion report.</div>
+      </div>
+      <div class="tr">
+        <div class="b you">Why is Notion good as a product backend?</div>
+        <div class="b tutor"><span class="who">Tutor</span>One workspace is your database, dashboard, and reading surface at once.</div>
+        <div class="b note">Deep report + pictures · saving to Notion</div>
+      </div>
+      <button class="end">End session</button>
+    </div></div>
+    <div class="cap"><div class="n">C</div><h3>Bloom</h3><div class="lang">Soft lavender</div>
+      <p>Round head, big bright eyes, rosy cheeks. The roundest and most huggable.</p>
+      <div class="traits"><span>💜 Lavender</span><span>Round face</span><span>Friendliest</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
