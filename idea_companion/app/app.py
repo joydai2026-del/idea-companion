@@ -730,6 +730,9 @@ def web():
                                     "type": props["Type"]["select"]["name"],
                                     "context_text": ctx,
                                     "visuals": bool(rq.get("visuals")),
+                                    # Forward the owner chat id so the Worker can ping the link even if
+                                    # its own env is not configured. This is the bug that dropped the link.
+                                    "owner_chat_id": os.environ.get("IC_OWNER_CHAT_ID"),
                                 }
                                 if not _dispatch_notion_worker(worker_payload):
                                     process_report.spawn(

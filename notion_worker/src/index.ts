@@ -14,6 +14,7 @@ type ReportPayload = {
   type?: "report" | "infographic" | "insight";
   context_text?: string;
   visuals?: boolean;
+  owner_chat_id?: string;
 };
 
 type RichText = {
@@ -62,6 +63,7 @@ function parsePayload(body: Record<string, unknown>): ReportPayload {
     type: payload.type === "infographic" || payload.type === "insight" ? payload.type : "report",
     context_text: payload.context_text ? String(payload.context_text) : "",
     visuals: Boolean(payload.visuals),
+    owner_chat_id: payload.owner_chat_id ? String(payload.owner_chat_id) : undefined,
   };
 }
 
@@ -72,15 +74,15 @@ async function buildLessonArtifact(payload: ReportPayload): Promise<void> {
     const appended = await appendBlocks(payload.report_id, blocks);
     if (!appended) {
       await setStatus(payload.report_id, "Requested");
-      await telegramPing(`I saved partial notes on "${payload.topic}" but the Notion Worker write was incomplete.`);
+      await telegramPing(`I saved partial notes on "${payload.topic}" but the Notion Worker write was incomplete.`, payload.owner_chat_id);
       return;
     }
     await setStatus(payload.report_id, "Ready");
-    await telegramPing(`Ready: your Notion lesson on "${payload.topic}" is done.\n${payload.report_url ?? ""}`.trim());
+    await telegramPing(`Ready: your Notion lesson on "${payload.topic}" is done.\n${payload.report_url ?? ""}`.trim(), payload.owner_chat_id);
   } catch (error) {
     console.error("[worker] build failed", error);
     await setStatus(payload.report_id, "Requested");
-    await telegramPing(`I could not finish "${payload.topic}" this time. Ask me again and I will retry it.`);
+    await telegramPing(`I could not finish "${payload.topic}" this time. Ask me again and I will retry it.`, payload.owner_chat_id);
     throw error;
   }
 }
@@ -297,17 +299,26 @@ function notionHeaders(version: string): Record<string, string> {
   };
 }
 
-async function telegramPing(text: string): Promise<void> {
+async function telegramPing(text: string, chatId?: string): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.IC_OWNER_CHAT_ID;
-  if (!token || !chatId) {
+  const target = chatId ?? process.env.IC_OWNER_CHAT_ID;
+  if (!token || !target) {
+    // Loud on purpose: a silent skip here is exactly what hid the missing-link bug.
+    console.error(`[worker] telegram ping skipped: ${!token ? "TELEGRAM_BOT_TOKEN" : "owner chat id"} missing`);
     return;
   }
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  });
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: target, text }),
+    });
+    if (!response.ok) {
+      console.error(`[worker] telegram ping failed ${response.status}: ${(await response.text()).slice(0, 200)}`);
+    }
+  } catch (error) {
+    console.error("[worker] telegram ping threw", error);
+  }
 }
 
 function markdownToBlocks(markdown: string): NotionBlock[] {

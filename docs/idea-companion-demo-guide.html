@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Companion · Demo Walkthrough &amp; Presenter Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf8f4;--card:#fff;--ink:#1c1c1e;--muted:#6b6a66;--line:#e7e3da;--violet:#5b3df5;--violet-soft:#efeaff;--blue:#2563c9;--blue-soft:#e8f0fe;--green:#0a8f5b;--green-soft:#e6f5ee;--amber:#b7791f;--amber-soft:#fbf2dd;--rose:#c2255c;--rose-soft:#fce7ef;--teal:#0d9488;--teal-soft:#e0f2f0;--ink2:#0f0f0f;--shadow:0 1px 2px rgba(20,18,12,.04),0 6px 22px rgba(20,18,12,.06)}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans","Noto Sans SC",system-ui,-apple-system,sans-serif;line-height:1.6;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 22px 90px}
+  header.hero{background:linear-gradient(135deg,#23106b 0%,#5b3df5 50%,#0d9488 100%);color:#fff;border-radius:22px;padding:36px 32px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:270px;height:270px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);border-radius:50%}
+  .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+  header.hero h1{font-size:29px;line-height:1.16;margin:12px 0 8px;font-weight:800}
+  header.hero p{margin:6px 0 0;font-size:16px;max-width:820px;opacity:.95}
+  .pillrow{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:6px 13px;border-radius:999px;font-size:13px;font-weight:600}
+  h2{font-size:22px;font-weight:800;margin:46px 0 6px}h2 .num{color:var(--violet)}
+  h3{font-size:18px;font-weight:700;margin:22px 0 8px}
+  .lead{color:var(--muted);margin:2px 0 16px;font-size:15.5px}
+  p{margin:10px 0}a{color:var(--violet);text-decoration:none;border-bottom:1px solid rgba(91,61,245,.25)}
+  code{background:#f1eee7;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;color:#3a2f6e}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+  .toc a{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;color:var(--ink)}
+  .callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:14.5px}
+  .c-violet{background:var(--violet-soft);border:1px solid #d9ccff}.c-teal{background:var(--teal-soft);border:1px solid #b6e0da}.c-green{background:var(--green-soft);border:1px solid #bfe6d3}.c-amber{background:var(--amber-soft);border:1px solid #efdcb0}.c-blue{background:var(--blue-soft);border:1px solid #c3d8fb}.c-rose{background:var(--rose-soft);border:1px solid #f6c9da}
+  .callout .h{display:block;font-weight:800;margin-bottom:4px;font-size:14px;letter-spacing:.02em;text-transform:uppercase}
+  .c-violet .h{color:var(--violet)}.c-teal .h{color:var(--teal)}.c-green .h{color:var(--green)}.c-amber .h{color:var(--amber)}.c-blue .h{color:var(--blue)}.c-rose .h{color:var(--rose)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f3f0ea;font-weight:700;font-size:12.5px}tr:last-child td{border-bottom:none}
+  ul{margin:6px 0 6px 2px;padding-left:18px}li{margin:4px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}.wrap{padding:26px 15px 70px}header.hero h1{font-size:23px}}
+  .foot{margin-top:46px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .t-done{background:var(--green);color:#fff}.t-now{background:var(--violet);color:#fff}.t-road{background:#efe9df;color:#7a6f59}
+
+  /* architecture diagram */
+  .arch{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:var(--shadow)}
+  .anode{border-radius:13px;padding:12px 14px;border:1.5px solid;position:relative}
+  .anode .k{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;opacity:.8}
+  .anode .t{font-weight:700;font-size:14.5px;margin-top:2px}
+  .anode .d{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .n-phone{background:#f5f3ef;border-color:#cfc9bd}
+  .n-modal{background:var(--violet-soft);border-color:#c9b8ff}
+  .n-worker{background:var(--teal-soft);border-color:#8fd3ca}
+  .n-notion{background:#101012;border-color:#101012;color:#fff}.n-notion .d{color:#cfcfcf}.n-notion .k{color:#9b9b9b}
+  .n-ai{background:var(--green-soft);border-color:#a9ddc3}
+  .arow{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:11.5px;font-weight:600;padding:6px 0}
+  .arow .ln{font-size:20px;line-height:1;color:var(--violet)}
+  .acols{display:grid;grid-template-columns:1fr;gap:0}
+  .lane{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;gap:0}
+  .lane .mid{text-align:center;color:var(--violet);font-weight:800}
+  .stepnum{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--violet);color:#fff;font-size:11px;font-weight:800;align-items:center;justify-content:center;margin-right:6px}
+  @media(max-width:680px){.lane{grid-template-columns:1fr}.lane .mid{padding:4px 0}}
+
+  /* stack cards */
+  .stack{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+  @media(max-width:820px){.stack{grid-template-columns:1fr 1fr}}@media(max-width:520px){.stack{grid-template-columns:1fr}}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow);border-top:4px solid var(--violet)}
+  .sc:nth-child(2){border-top-color:var(--teal)}.sc:nth-child(3){border-top-color:var(--ink2)}.sc:nth-child(4){border-top-color:var(--green)}.sc:nth-child(5){border-top-color:var(--blue)}.sc:nth-child(6){border-top-color:var(--amber)}
+  .sc .icon{font-size:20px}.sc h4{margin:6px 0 4px;font-size:15px}.sc p{margin:0;font-size:12.8px;color:var(--muted);line-height:1.45}
+  .sc .role{font-size:11px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.04em}
+
+  /* demo script */
+  .scriptstep{display:grid;grid-template-columns:54px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:11px 0;box-shadow:var(--shadow)}
+  .scriptstep .no{font-size:26px;font-weight:800;color:var(--violet);line-height:1}
+  .scriptstep .secs{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
+  .scriptstep h4{margin:0 0 4px;font-size:15.5px}
+  .say{background:var(--violet-soft);border-left:3px solid var(--violet);border-radius:0 8px 8px 0;padding:8px 12px;margin:7px 0;font-size:13.5px;font-style:italic}
+  .say b{font-style:normal}
+  .do{font-size:13px;color:var(--muted);margin:4px 0}
+  .do b{color:var(--ink)}
+  .phone{max-width:300px;margin:8px auto;background:#0f0f0f;border-radius:26px;padding:10px;box-shadow:var(--shadow)}
+  .phone .scr{background:#e9e7e1;border-radius:18px;padding:13px;font-size:13px}
+  .bub{background:#fff;border-radius:12px;padding:8px 11px;margin:7px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}.bub.bot{margin-right:24px}.link{color:#2563c9;text-decoration:underline}
+  .chk{list-style:none;padding-left:0}.chk li{padding-left:26px;position:relative;margin:7px 0;font-size:14px}
+  .chk li:before{content:"☐";position:absolute;left:0;font-size:16px;color:var(--violet)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Jun 12 Demo · Product walkthrough + presenter guide</div>
+  <h1>Idea Companion: a Notion-native personal learning product</h1>
+  <p>You talk on a walk. Notion becomes the memory, the teaching workspace, and the place you study later. The voice agent is only the capture layer. This page explains the whole system end to end, then gives you a minute-by-minute script for the live demo.</p>
+  <div class="pillrow"><span class="pill">🗄️ Notion is the product</span><span class="pill">🎙️ Voice = capture only</span><span class="pill">🧩 Report builder runs inside Notion</span><span class="pill">🌐 EN + 中文</span></div>
+</header>
+
+<div class="toc">
+  <a href="#tldr">30-sec story</a><a href="#arch">Architecture</a><a href="#stack">The pieces</a><a href="#flow">How it works</a><a href="#migration">The Notion migration</a><a href="#script">Demo script</a><a href="#checklist">Pre-demo checks</a><a href="#fallback">Fallback</a><a href="#qa">Q&amp;A prep</a><a href="#road">Roadmap</a>
+</div>
+
+<!-- ============ TLDR ============ -->
+<h2 id="tldr"><span class="num">1.</span> The story in 30 seconds</h2>
+<div class="callout c-violet"><span class="h">The one sentence to open with</span>
+  "Notion is the database, the dashboard, and the reading surface for a personal AI product. The voice agent is just how I capture ideas when I am walking and cannot type."
+</div>
+<div class="grid2">
+  <div>
+    <p><b>The problem.</b> Your best thinking happens on a walk, away from a keyboard. By the time you sit down, it is gone.</p>
+    <p><b>The product.</b> Speak to a tutor hands-free. Every walk becomes a Notion <b>Conversation</b>. Anything you ask for out loud becomes a Notion <b>Report</b>: a real teaching workspace with a summary, concept cards, a glossary, a practice loop, a quiz, cited sources, and an illustration. Then Telegram pings you the link.</p>
+  </div>
+  <div>
+    <div class="callout c-teal" style="margin-top:0"><span class="h">Why it is a Notion demo, not a voice demo</span>
+      The clever part is not that it talks. It is that <b>the learning system lives inside Notion</b>: the report is built by a <b>Notion Worker</b> running in Notion's own runtime, and the finished lesson is a Notion page you keep, search, and revisit. Voice is the on-ramp; Notion is the home.</div>
+  </div>
+</div>
+
+<!-- ============ ARCHITECTURE ============ -->
+<h2 id="arch"><span class="num">2.</span> Architecture (how each piece connects)</h2>
+<p class="lead">Two cloud runtimes, one Notion workspace. Modal handles the live microphone. Notion builds and stores the lesson. Nothing depends on your laptop.</p>
+
+<div class="arch">
+  <!-- capture lane -->
+  <div class="lane">
+    <div class="anode n-phone"><div class="k">On the walk</div><div class="t">📱 Telegram Mini App</div><div class="d">Breathing orb + live transcript. Opens in Telegram or Safari. Owner-only (verified by Telegram identity).</div></div>
+    <div class="mid">→</div>
+    <div class="anode n-modal"><div class="k">Cloud runtime A</div><div class="t">☁️ Modal: capture layer</div><div class="d">Mints the OpenAI Realtime token, runs the voice session, and on "end" writes the Notion rows. Stays warm (min 1 container).</div></div>
+  </div>
+  <div class="arow"><span class="ln">↓</span><span><span class="stepnum">1</span>End of walk: Modal creates the Notion rows</span></div>
+  <div class="lane">
+    <div class="anode n-ai"><div class="k">Model layer</div><div class="t">🧠 OpenAI</div><div class="d">Realtime voice (gpt-realtime) for the talk · gpt-4o-search-preview for the report (live web + citations) · gpt-image-1 for the diagram.</div></div>
+    <div class="mid"></div>
+    <div class="anode n-notion"><div class="k">Source of truth</div><div class="t">🗄️ Notion workspace</div><div class="d">Conversations DB (full transcript) + Reports DB (Requested → In progress → Ready), under the "Idea Companion" page.</div></div>
+  </div>
+  <div class="arow"><span class="ln">↓</span><span><span class="stepnum">2</span>Modal sends a signed webhook to the Notion Worker</span></div>
+  <div class="lane">
+    <div class="anode n-worker"><div class="k">Cloud runtime B (inside Notion)</div><div class="t">🧩 Notion Worker · <code>buildLessonArtifact</code></div><div class="d">Verifies the secret, calls OpenAI, builds the teaching workspace, uploads the image, appends the blocks to the Report page, flips Status to Ready.</div></div>
+    <div class="mid">→</div>
+    <div class="anode n-notion"><div class="k">Result</div><div class="t">📄 Finished Report page</div><div class="d">A full lesson you can read, search, and study. Status = Ready.</div></div>
+  </div>
+  <div class="arow"><span class="ln">↓</span><span><span class="stepnum">3</span>Worker pings you back in Telegram with the link</span></div>
+  <div class="lane">
+    <div class="anode n-phone" style="max-width:520px;margin:0 auto"><div class="k">Back on the phone</div><div class="t">📱 "Ready: your Notion lesson is done" + link</div><div class="d">Walk to desk handoff. Tap the link, the finished Notion lesson opens.</div></div>
+  </div>
+</div>
+
+<div class="callout c-amber"><span class="h">Reliability by design</span>
+  If the Notion Worker is ever unreachable, Modal silently falls back to its own built-in report builder, so a walk never ends in a dead end. The Worker is the primary path; Modal is the safety net.</div>
+
+<!-- ============ STACK ============ -->
+<h2 id="stack"><span class="num">3.</span> The pieces (your tech stack, plain English)</h2>
+<div class="stack">
+  <div class="sc"><div class="icon">📱</div><div class="role">Surface</div><h4>Telegram Mini App</h4><p>The phone-first front door. A web app that opens inside Telegram so there is nothing to install. Shows a breathing orb and live captions.</p></div>
+  <div class="sc"><div class="icon">☁️</div><div class="role">Capture cloud</div><h4>Modal</h4><p>Serverless host for the live voice session. It needs a public page and browser audio, which is why this layer stays on Modal, not in Notion.</p></div>
+  <div class="sc"><div class="icon">🧩</div><div class="role">Builder cloud</div><h4>Notion Worker</h4><p>A worker that runs inside Notion's own platform (<code>@notionhq/workers</code>). It turns a Report request into a finished teaching page. This is the "Notion is the platform" proof.</p></div>
+  <div class="sc"><div class="icon">🗄️</div><div class="role">Memory</div><h4>Notion databases</h4><p>Conversations (raw transcript + summary) and Reports (status board of learning artifacts), both living under one "Idea Companion" page in your private workspace.</p></div>
+  <div class="sc"><div class="icon">🧠</div><div class="role">Intelligence</div><h4>OpenAI models</h4><p>Realtime voice for the talk, gpt-4o-search-preview for current, cited reports, and gpt-image-1 for the lesson diagram.</p></div>
+  <div class="sc"><div class="icon">🔔</div><div class="role">Handoff</div><h4>Telegram bot</h4><p>Sends the "preparing" ping when the walk ends and the "ready + link" ping when the lesson is built, so you do not have to watch the screen.</p></div>
+</div>
+
+<!-- ============ FLOW ============ -->
+<h2 id="flow"><span class="num">4.</span> How it works (one loop, six beats)</h2>
+<table>
+  <tr><th style="width:34px">#</th><th>Beat</th><th>What happens</th><th>Where</th></tr>
+  <tr><td>1</td><td>Talk</td><td>You open the Mini App and speak. The tutor asks and answers, in English or 中文.</td><td>Phone · Modal · OpenAI Realtime</td></tr>
+  <tr><td>2</td><td>Ask out loud</td><td>You say "make me a deep report on X, with pictures." That becomes a structured request, confirmed by voice.</td><td>Phone (voice command)</td></tr>
+  <tr><td>3</td><td>End + save</td><td>You end the walk. Modal writes one Conversation row (full transcript) and one Report row per request (Status = Requested), then pings "preparing your report."</td><td>Modal → Notion</td></tr>
+  <tr><td>4</td><td>Build</td><td>Modal calls the Notion Worker. The Worker flips Status to In progress, generates the lesson and image, and appends everything to the Report page.</td><td>Notion Worker · OpenAI</td></tr>
+  <tr><td>5</td><td>Ready</td><td>Status flips to Ready. The page now has mission, summary, concept cards, glossary, practice, quiz, sources, and a diagram.</td><td>Notion</td></tr>
+  <tr><td>6</td><td>Handoff</td><td>The Worker pings Telegram with the Notion link. You tap it and study at your desk.</td><td>Notion Worker → Telegram</td></tr>
+</table>
+
+<!-- ============ MIGRATION ============ -->
+<h2 id="migration"><span class="num">5.</span> The Notion Worker migration (your headline talking point)</h2>
+<p class="lead">This is the part that makes a Notion audience lean in. The report builder used to be a plain Modal job. It now runs inside Notion.</p>
+<div class="grid2">
+  <div class="callout c-rose" style="margin-top:0"><span class="h">Before</span>
+    <ul style="margin:0">
+      <li>Modal captured the voice <b>and</b> built the report.</li>
+      <li>Notion was just a place rows landed.</li>
+      <li>The "AI product" lived entirely outside Notion.</li>
+    </ul>
+  </div>
+  <div class="callout c-green" style="margin-top:0"><span class="h">After</span>
+    <ul style="margin:0">
+      <li>Modal only captures the voice (it needs browser audio).</li>
+      <li>A <b>Notion Worker</b> builds the lesson inside Notion's runtime.</li>
+      <li>Notion is now the operating surface, not the afterthought.</li>
+    </ul>
+  </div>
+</div>
+<div class="callout c-blue"><span class="h">The line to say</span>
+  "The live capture needs a microphone, so it stays on Modal. But the learning system itself runs inside Notion. The Report row triggers a Notion Worker, and the Worker turns it into a page that teaches me, quizzes me, and cites its sources."</div>
+<p style="font-size:13.5px;color:var(--muted)"><b>Worth knowing if asked:</b> a fully Notion-native "Custom Agent" cannot call an external image API, so a Worker (which can) is the right Notion primitive for this job. That is exactly the Custom Agent vs Worker Agent distinction, and it is a clean thing to explain live.</p>
+
+<!-- ============ DEMO SCRIPT ============ -->
+<h2 id="script"><span class="num">6.</span> The live demo, minute by minute</h2>
+<div class="callout c-amber"><span class="h">Golden rule of order</span>
+  Notion first, then Telegram, then back to Notion. Never open the code editor. Never lead with "this is a voice tutor." Let Notion be the star; the voice is the surprise on-ramp.</div>
+
+<div class="scriptstep"><div><div class="no">1</div><div class="secs">0:00 to 0:20</div></div><div>
+  <h4>Open on the Notion dashboard</h4>
+  <div class="do"><b>Show:</b> the "Idea Companion" page. Reports board grouped by Status. A couple of finished lessons in the gallery.</div>
+  <div class="say">"This is a personal learning product, and its home is Notion. Conversations are my raw memory. Reports are finished lessons. Watch how one gets made."</div>
+</div></div>
+
+<div class="scriptstep"><div><div class="no">2</div><div class="secs">0:20 to 0:55</div></div><div>
+  <h4>Open Telegram and talk to the tutor</h4>
+  <div class="do"><b>Show:</b> the Mini App opening, the breathing orb, live captions. Speak naturally for a few turns.</div>
+  <div class="say">"The capture layer is voice, because my best thinking happens on a walk. It works in English and Chinese." <b>(Then, out loud to the tutor:)</b> "Give me a deep report on this, with pictures."</div>
+  <div class="do">Pick a topic you can speak about for 20 seconds. Safe choices: a concept from your week, a tool you are evaluating, or "how Notion Workers differ from Custom Agents" (meta and on-theme).</div>
+</div></div>
+
+<div class="scriptstep"><div><div class="no">3</div><div class="secs">0:55 to 1:10</div></div><div>
+  <h4>End the session</h4>
+  <div class="do"><b>Show:</b> the phone gets the instant "preparing your report" ping. <b>Switch back to Notion.</b></div>
+  <div class="say">"The moment I end the walk, Notion gets a new Conversation and a new Report, and a Notion Worker starts building the lesson."</div>
+</div></div>
+
+<div class="scriptstep"><div><div class="no">4</div><div class="secs">1:10 to 1:40</div></div><div>
+  <h4>Watch the Report row flip to Ready</h4>
+  <div class="do"><b>Show:</b> the Status moving Requested → In progress → Ready on the board. Then open the finished page.</div>
+  <div class="say">"That status is being driven from inside Notion. When it says Ready, the lesson is done."</div>
+</div></div>
+
+<div class="scriptstep"><div><div class="no">5</div><div class="secs">1:40 to 2:10</div></div><div>
+  <h4>Read the finished lesson and land the close</h4>
+  <div class="do"><b>Show:</b> scroll the page. Point at the diagram, the 5-bullet summary, concept cards, glossary, practice loop, quiz, and the cited sources.</div>
+  <div class="say">"The voice agent captured the moment. Notion turned it into memory, teaching, practice, and recall. That is the product: <b>Notion as the brain of a personal AI</b>."</div>
+</div></div>
+
+<div class="callout c-teal"><span class="h">Bilingual flourish (optional, strong)</span>
+  If the room is bilingual, do one voice turn in 中文 and show the lesson can be produced in Chinese. It proves the capture layer is genuinely language-agnostic. Keep the spoken pitch in the room's main language; switch only for the one demo turn.</div>
+
+<!-- ============ CHECKLIST ============ -->
+<h2 id="checklist"><span class="num">7.</span> Pre-demo checklist (run 10 minutes before)</h2>
+<div class="grid2">
+  <div>
+    <ul class="chk">
+      <li>Health endpoint returns <code>ok</code> with <code>has_notion_worker: true</code>.</li>
+      <li>Health shows Notion DBs present and auth enforced.</li>
+      <li>Telegram opens the Mini App on your phone.</li>
+      <li>Phone is on Wi-Fi, microphone permission already granted.</li>
+      <li>Notion dashboard open in a clean browser tab, Reports grouped by Status.</li>
+    </ul>
+  </div>
+  <div>
+    <ul class="chk">
+      <li>Do one full dry run: talk, request a report, confirm the <b>Ready + link</b> ping arrives.</li>
+      <li>Have one finished report pre-made as a backup to show instantly.</li>
+      <li>Screen mirroring tested (phone + laptop on the projector).</li>
+      <li>Notifications silenced except the demo bot.</li>
+      <li>Know your demo topic and your opening line cold.</li>
+    </ul>
+  </div>
+</div>
+<div class="callout c-green"><span class="h">The one check that matters most</span>
+  The full dry run, end to end, on the same build you will demo. If the "Ready + link" Telegram message lands on your phone, the whole loop is proven. Reports building and Status flipping to Ready is the real success signal.</div>
+
+<!-- ============ FALLBACK ============ -->
+<h2 id="fallback"><span class="num">8.</span> If live voice misbehaves (graceful fallback)</h2>
+<p class="lead">Voice is phone and network dependent. If the room Wi-Fi fights you, pivot without apology. The Notion loop is the point, not the microphone.</p>
+<table>
+  <tr><th style="width:34px">#</th><th>Do this</th><th>Say this</th></tr>
+  <tr><td>1</td><td>Stay in Notion. Open a pre-made finished Report.</td><td>"Let me show you what the product actually produces."</td></tr>
+  <tr><td>2</td><td>Walk the lesson sections: summary, concept cards, glossary, practice, quiz, sources, image.</td><td>"Every walk turns into a page like this, built by a Notion Worker."</td></tr>
+  <tr><td>3</td><td>Show the Reports board and the Conversations DB.</td><td>"Notion is the memory and the dashboard. The voice layer is just the capture, and it is phone dependent, which is exactly why the durable part lives in Notion."</td></tr>
+</table>
+
+<!-- ============ QA PREP ============ -->
+<h2 id="qa"><span class="num">9.</span> Questions you may get, and crisp answers</h2>
+<table>
+  <tr><th style="width:38%">If they ask</th><th>You say</th></tr>
+  <tr><td>Why not build the whole thing inside Notion?</td><td>The live microphone needs a public web page and browser audio, which a Notion Worker does not host. So Modal captures; Notion builds and stores. Best tool for each job.</td></tr>
+  <tr><td>What is a Notion Worker, exactly?</td><td>Code that runs inside Notion's own platform and responds to a webhook. Unlike a no-code Custom Agent, a Worker can call external APIs (like image generation), which this lesson needs.</td></tr>
+  <tr><td>Is my data private?</td><td>Yes. It is the most personal data, so it stays in my own Notion workspace and my own cloud, on my keys. Owner-only access is enforced by Telegram identity. Nothing is sold.</td></tr>
+  <tr><td>Are the reports accurate or hallucinated?</td><td>The report model searches the live web and cites its sources, which are clickable in the page. It is told never to invent figures.</td></tr>
+  <tr><td>What happens if the AI fails mid-build?</td><td>The Worker tells you it could not finish and asks you to retry, and Modal has a built-in fallback builder. A walk never silently dies.</td></tr>
+  <tr><td>Does it really do Chinese?</td><td>Yes, capture and the produced lesson both support 中文. Happy to show one turn live.</td></tr>
+  <tr><td>What is next for this?</td><td>It grows into a weekly "evolution" review that synthesizes everything I consume and produce, and reads it back to me as audio I can question on a walk.</td></tr>
+</table>
+
+<!-- ============ ROADMAP ============ -->
+<h2 id="road"><span class="num">10.</span> Where this goes next (the roadmap)</h2>
+<p class="lead">Idea Companion is the capture-and-teach loop. The bigger vision, built on the same Modal + Notion + Telegram rails, is a weekly review of your whole learning life.</p>
+<div class="stack">
+  <div class="sc"><div class="role"><span class="tag t-done">Shipped</span></div><h4>Idea Companion</h4><p>Voice capture → Notion teaching workspace → Telegram handoff. Demo-ready. The link-back ping was repaired today.</p></div>
+  <div class="sc"><div class="role"><span class="tag t-now">Next</span></div><h4>Weekly review (read + listen)</h4><p>A Sunday synthesis of GitHub, your vault, and dropped links, written to a Notion page and turned into a NotebookLM podcast.</p></div>
+  <div class="sc"><div class="role"><span class="tag t-road">Then</span></div><h4>Ask out loud</h4><p>A Realtime voice agent grounded on that synthesis: hear your week, then interrupt to ask questions, bilingual, on a walk.</p></div>
+  <div class="sc"><div class="role"><span class="tag t-road">Later</span></div><h4>Cross-source insight</h4><p>"You read about X, then you shipped X." Monthly and yearly Wrapped. Toward a private, own-your-data life OS.</p></div>
+</div>
+<div class="callout c-violet"><span class="h">The throughline to mention if you have time</span>
+  "Idea Companion proves the pattern: Notion is the memory layer and operating surface for a personal AI. The next product just widens the input from one walk to a whole week."</div>
+
+<div class="foot">
+  Idea Companion · Demo walkthrough &amp; presenter guide · 2026-06-10<br>
+  Repo: <code>Personal Evolver</code> · branch <code>feat/notion-worker-reports</code> · companion docs: <code>docs/plan.html</code>, <code>docs/notion-demo-runbook.md</code>
+</div>
+</div>
+</body>
+</html>
