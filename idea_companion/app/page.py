@@ -4,7 +4,7 @@ Kept as a Python module so Modal includes it when it serializes app.py's imports
 No secrets here: the page fetches a short-lived ephemeral token from /session.
 """
 
-VERSION = "tutor-v14"
+VERSION = "tutor-v15"
 
 PAGE_HTML = r"""<!doctype html>
 <html lang="en">
@@ -13,67 +13,106 @@ PAGE_HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Idea Companion</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { color-scheme: dark; }
+  :root { color-scheme: light; --ring: #9fe6cd; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   html, body { height: 100%; }
   body {
     margin: 0; padding: 0;
-    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    color: #f2f5f9;
-    background: radial-gradient(120% 90% at 50% 0%, #1b2a4a 0%, #0c1322 55%, #080b14 100%);
+    font: 16px/1.5 "Quicksand", "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    color: #27413a;
+    background: linear-gradient(178deg, #f0fbf6 0%, #e7f7f0 58%, #dcf2e9 100%);
     display: flex; flex-direction: column; height: 100dvh; overflow: hidden;
   }
   header { padding: 18px 20px 6px; text-align: center; flex: 0 0 auto; }
-  header h1 { font-size: 21px; margin: 0; font-weight: 700; letter-spacing: .2px; }
-  header p { margin: 3px 0 0; font-size: 13px; color: #93a3bd; }
-  .notion-line { margin-top: 7px; font-size: 12px; color: #b7c7e4; }
+  header h1 { font-size: 22px; margin: 0; font-weight: 700; letter-spacing: .2px; color: #27413a; }
+  header p { margin: 3px 0 0; font-size: 13px; color: #3fae8c; font-weight: 600; }
+  .notion-line { margin-top: 7px; font-size: 12px; color: #7fa99a; }
 
-  .orbwrap { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; padding: 10px 0 6px; }
+  .orbwrap { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; padding: 12px 0 4px; }
   .orb {
-    width: 150px; height: 150px; border-radius: 50%; position: relative; cursor: pointer;
-    background: radial-gradient(circle at 35% 30%, #46527a, #2a3650 55%, #1d2740);
-    box-shadow: 0 0 0 0 rgba(76,156,255,.45), 0 10px 40px rgba(20,60,140,.5);
-    transition: transform .08s ease-out, box-shadow .3s ease; display: grid; place-items: center; text-align: center;
+    width: 156px; height: 156px; border-radius: 50%; position: relative; cursor: pointer;
+    display: grid; place-items: center; transition: transform .08s ease-out;
   }
-  .orb .lbl { font-size: 15px; font-weight: 600; padding: 0 14px; pointer-events: none; }
-  .orb.listening { background: radial-gradient(circle at 35% 30%, #4c9cff, #2f6fe0 55%, #1d3f8c); }
-  .orb.connecting { animation: pulse 1.1s ease-in-out infinite; }
-  .orb.speaking { background: radial-gradient(circle at 35% 30%, #57d98a, #2bb673 55%, #178a52); }
-  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(76,156,255,.5),0 10px 40px rgba(20,60,140,.5);} 50%{ box-shadow:0 0 0 18px rgba(76,156,255,0),0 10px 40px rgba(20,60,140,.5);} }
-  .hint { font-size: 12.5px; color: #8294b2; margin-top: 12px; height: 16px; }
+  .rings { position: absolute; inset: 0; border-radius: 50%; display: none; pointer-events: none; }
+  .rings:before, .rings:after {
+    content: ""; position: absolute; inset: 10px; border-radius: 50%;
+    border: 2px solid var(--ring); opacity: 0; animation: ping 2.6s ease-out infinite;
+  }
+  .rings:after { animation-delay: 1.3s; }
+  @keyframes ping { 0%{ transform: scale(.78); opacity: .55; } 80%{ opacity: 0; } 100%{ transform: scale(1.3); opacity: 0; } }
+  .orb.listening .rings, .orb.speaking .rings { display: block; }
+  .orb.speaking { --ring: #86e0b0; }
+  .robo {
+    width: 150px; height: 150px; position: relative; z-index: 2;
+    filter: drop-shadow(0 10px 16px rgba(40,90,70,.16));
+    animation: float 3.4s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-5px); } }
+  .robo .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
+  @keyframes blink { 0%,93%,100%{ transform: scaleY(1); } 96%{ transform: scaleY(.12); } }
+  .statepill {
+    margin-top: 10px; font-size: 12.5px; font-weight: 700; padding: 4px 14px;
+    border-radius: 999px; background: #d6f4e8; color: #1d9b76; min-height: 26px;
+  }
+  .hint { font-size: 12.5px; color: #86ab9d; margin-top: 10px; height: 16px; }
 
   .transcript {
     flex: 1 1 auto; overflow-y: auto; padding: 8px 16px 4px; margin: 6px 10px 0;
     display: flex; flex-direction: column; gap: 8px; -webkit-overflow-scrolling: touch; user-select: text;
   }
-  .bubble { max-width: 84%; padding: 9px 13px; border-radius: 15px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
-  .bubble.you { align-self: flex-end; background: #2f6fe0; border-bottom-right-radius: 5px; }
-  .bubble.tutor { align-self: flex-start; background: #1b2536; border: 1px solid #283449; border-bottom-left-radius: 5px; }
-  .bubble.note { align-self: center; background: #14241c; border: 1px solid #1f5a3a; color: #8fe7b4; font-size: 13.5px; max-width: 92%; text-align: center; }
-  .bubble .who { display:block; font-size: 11px; opacity: .65; margin-bottom: 2px; }
+  .bubble { max-width: 84%; padding: 9px 13px; border-radius: 16px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+  .bubble.you { align-self: flex-end; background: #19b88a; color: #fff; border-bottom-right-radius: 5px; }
+  .bubble.tutor { align-self: flex-start; background: #ffffff; color: #3a4f48; box-shadow: 0 2px 8px rgba(60,140,110,.12); border-bottom-left-radius: 5px; }
+  .bubble.note { align-self: center; background: #e7f7f0; border: 1px solid #c8ecdc; color: #178a68; font-size: 13.5px; max-width: 92%; text-align: center; }
+  .bubble .who { display:block; font-size: 11px; opacity: .7; margin-bottom: 2px; font-weight: 700; }
+  .bubble.tutor .who { color: #19b88a; opacity: 1; }
   .empty {
-    color: #6f80a0; text-align: center; font-size: 13.5px; margin: 14px auto 0;
+    color: #8aa99d; text-align: center; font-size: 13.5px; margin: 14px auto 0;
     max-width: min(92vw, 680px); padding: 0 10px; overflow-wrap: anywhere;
   }
 
   footer { flex: 0 0 auto; padding: 10px 20px calc(16px + env(safe-area-inset-bottom)); }
   button#end {
-    width: 100%; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 13px;
-    background: #2a1620; color: #ff97a9; border: 1px solid #5a2738; cursor: pointer; display: none;
+    width: 100%; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 14px;
+    background: #ffffff; color: #159a73; border: 1px solid #cdeede;
+    box-shadow: 0 2px 8px rgba(60,140,110,.14); cursor: pointer; display: none; font-family: inherit;
   }
-  .err { color:#ff8095; font-size:12.5px; text-align:center; padding:0 16px; min-height:16px; }
+  .err { color:#e0556a; font-size:12.5px; text-align:center; padding:0 16px; min-height:16px; }
 </style>
 </head>
 <body>
   <header>
     <h1>Idea Companion</h1>
-    <p>Your walking tutor · 你的步行私教</p>
+    <p>Your walking tutor</p>
     <div class="notion-line">Talk now. Notion remembers, organizes, and writes the follow-up.</div>
   </header>
 
   <div class="orbwrap">
-    <div class="orb" id="orb"><span class="lbl" id="orbLbl">Tap to start</span></div>
+    <div class="orb" id="orb">
+      <div class="rings"></div>
+      <svg class="robo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="100" y1="40" x2="100" y2="22" stroke="#19b88a" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="100" cy="17" r="6.5" fill="#19b88a"/>
+        <rect x="30" y="84" width="13" height="30" rx="6.5" fill="#bfeede"/>
+        <rect x="157" y="84" width="13" height="30" rx="6.5" fill="#bfeede"/>
+        <rect x="42" y="44" width="116" height="112" rx="42" fill="#ffffff" stroke="#e3ece8" stroke-width="2"/>
+        <rect x="56" y="62" width="88" height="74" rx="32" fill="#f1f8f5"/>
+        <ellipse cx="66" cy="113" rx="8" ry="5" fill="#ffd2da"/>
+        <ellipse cx="134" cy="113" rx="8" ry="5" fill="#ffd2da"/>
+        <g class="eyes">
+          <ellipse cx="82" cy="94" rx="11" ry="13.5" fill="#263b34"/>
+          <ellipse cx="118" cy="94" rx="11" ry="13.5" fill="#263b34"/>
+          <circle cx="86" cy="89" r="3.4" fill="#ffffff"/>
+          <circle cx="122" cy="89" r="3.4" fill="#ffffff"/>
+        </g>
+        <path d="M91 114 Q100 122 109 114" stroke="#263b34" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="statepill" id="orbLbl">Tap to start</div>
     <div class="hint" id="hint">Tap, allow the mic, then ask for a Notion report.</div>
   </div>
 
@@ -91,7 +130,7 @@ const $=(id)=>document.getElementById(id);
 const orb=$("orb"), orbLbl=$("orbLbl"), hint=$("hint"), tr=$("transcript"), endBtn=$("end"), errEl=$("err");
 
 const tg=window.Telegram&&window.Telegram.WebApp;
-try{ if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor&&tg.setHeaderColor("#0c1322"); } }catch(e){}
+try{ if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor&&tg.setHeaderColor("#eaf7f1"); tg.setBackgroundColor&&tg.setBackgroundColor("#eaf7f1"); } }catch(e){}
 function tgInit(){ return (tg&&tg.initData)?tg.initData:""; }
 
 let pc=null, dc=null, micStream=null, audioCtx=null, live=false, connecting=false, botBubble=null, rafId=null;
@@ -111,9 +150,9 @@ function addBubble(role, who, text){
   const span=document.createElement("span"); span.textContent=text; d.appendChild(span);
   tr.appendChild(d); tr.scrollTop=tr.scrollHeight; return span;
 }
-function addUser(text){ if(text&&text.trim()){ addBubble("you","You · 你",text.trim()); transcriptLog.push({role:"you",text:text.trim()}); } }
+function addUser(text){ if(text&&text.trim()){ addBubble("you","You",text.trim()); transcriptLog.push({role:"you",text:text.trim()}); } }
 function addNote(text){ addBubble("note","",text); }
-function botDelta(delta){ if(!botBubble){ botBubble=addBubble("tutor","Tutor · 私教",""); curBotText=""; } botBubble.textContent+=delta; curBotText+=delta; tr.scrollTop=tr.scrollHeight; }
+function botDelta(delta){ if(!botBubble){ botBubble=addBubble("tutor","Tutor",""); curBotText=""; } botBubble.textContent+=delta; curBotText+=delta; tr.scrollTop=tr.scrollHeight; }
 function botDone(){ if(curBotText.trim()) transcriptLog.push({role:"tutor",text:curBotText.trim()}); botBubble=null; curBotText=""; }
 
 // Voice-issued commands arrive as function (tool) calls. Capture, show, confirm.
@@ -230,7 +269,7 @@ function stop(reason){
   if(reason==="user"){
     setHint("Session ended.");
     const n=requests.length;
-    addBubble("tutor","Idea Companion", n ? ("Nice walk. "+n+" item"+(n>1?"s":"")+" will be waiting in your Notion. 下次见!") : "Nice walk. I'll save this conversation to your Notion. 下次见!");
+    addBubble("tutor","Idea Companion", n ? ("Nice walk. "+n+" item"+(n>1?"s":"")+" will be waiting in your Notion.") : "Nice walk. I'll save this conversation to your Notion.");
   } else { setHint("Tap, allow the mic, then just talk."); }
   if(wasLive) saveConversation();
 }
