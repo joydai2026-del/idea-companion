@@ -141,6 +141,21 @@ def _has_cjk(text):
     return any("一" <= ch <= "鿿" for ch in (text or ""))
 
 
+def _detect_lang(transcript):
+    """Conversation language from what the USER actually said.
+
+    The tutor mirrors her but may sprinkle the other language (its scripted
+    greeting even asks "English or 中文?"), so scanning every turn for any CJK
+    character wrongly tags an all-English walk as Chinese. Decide by the
+    majority script of the "you" turns; fall back to all turns only if she has
+    no captured turns."""
+    you = " ".join(t.get("text", "") for t in transcript if t.get("role") == "you")
+    text = you if you.strip() else " ".join(t.get("text", "") for t in transcript)
+    cjk = sum(1 for ch in text if "一" <= ch <= "鿿")
+    latin = sum(1 for ch in text if ch.isascii() and ch.isalpha())
+    return "中文" if cjk > latin else "EN"
+
+
 def _md_to_blocks(md):
     """Minimal Markdown -> Notion blocks (headings, bullets, numbered, paragraphs).
     Parses [label](url) into clickable Notion links so report Sources are tappable."""
@@ -671,7 +686,7 @@ def web():
             or next((t.get("text", "") for t in transcript if t.get("role") == "you"), "")[:180]
             or f"{len(transcript)} turns"
         )
-        lang = "中文" if any(_has_cjk(t.get("text", "")) for t in transcript) else "EN"
+        lang = _detect_lang(transcript)
         blocks = [_para(("You: " if t.get("role") == "you" else "Tutor: ") + t.get("text", "")) for t in transcript[:90]]
 
         conv_props = {
