@@ -134,7 +134,8 @@
     body{background:#fff;padding:0}
     .deck{display:block;gap:0}
     .stage{width:1280px!important;height:720px!important}
-    .slide{transform:none!important;border-radius:0;box-shadow:none;page-break-after:always;break-after:page}
+    *{box-shadow:none!important}  /* PDFKit/Preview renders big blur shadows as gray boxes */
+    .slide{transform:none!important;border-radius:0;page-break-after:always;break-after:page}
     .slide:last-child{page-break-after:auto;break-after:auto}
   }
 </style>
