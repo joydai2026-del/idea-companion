@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Companion — Demo Slides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16161a;--muted:#6b6a73;--bg:#e9e6df;--card:#fbfaf7;--line:#eae6dd;
+    --violet:#5b3df5;--violet2:#7a5cff;--violet-soft:#efeaff;
+    --teal:#0d9488;--teal-soft:#e0f2f0;--blue:#2563c9;--blue-soft:#e8f0fe;
+    --green:#0a8f5b;--green-soft:#e6f5ee;--amber:#c2851b;--ink2:#101012;
+    --shadow:0 1px 2px rgba(20,18,12,.05),0 18px 50px rgba(20,18,12,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans","Noto Sans SC",system-ui,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  /* ===== SLIDE FRAME (16:9, 1280x720) ===== */
+  .slide{position:relative;width:1280px;height:720px;background:var(--card);overflow:hidden;color:var(--ink)}
+  .slide .pad{position:absolute;inset:0;padding:54px 66px 76px;display:flex;flex-direction:column}
+  .sfoot{position:absolute;left:66px;right:66px;bottom:28px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+  .sfoot .pgn{font-variant-numeric:tabular-nums}
+  .sfoot.light{color:rgba(255,255,255,.82)}
+  .mascot{position:absolute;top:30px;right:34px;width:86px;height:86px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(20,18,12,.20);border:2px solid rgba(255,255,255,.95);z-index:6}
+  .mascot img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block}
+
+  .kick{font-size:15px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--violet)}
+  .kick.t{color:var(--teal)} .kick.b{color:var(--blue)} .kick.g{color:var(--green)} .kick.v{color:var(--violet)}
+  .kick.light{color:rgba(255,255,255,.92)}
+  .headline{font-size:43px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:10px 0 6px;max-width:1000px}
+  .sub{font-size:20px;color:var(--muted);max-width:880px}
+
+  /* ===== SLIDE 1 — WHY (hero) ===== */
+  .s-hero{background:linear-gradient(135deg,#1b0b54 0%,#5b3df5 52%,#0d9488 100%);color:#fff}
+  .s-hero:before,.s-hero:after{content:"";position:absolute;border-radius:50%}
+  .s-hero:before{width:520px;height:520px;right:-150px;top:-180px;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
+  .s-hero:after{width:460px;height:460px;left:-150px;bottom:-220px;background:radial-gradient(circle,rgba(13,148,136,.45),transparent 70%)}
+  .s-hero .pad{justify-content:flex-start}
+  .eyebrow{font-size:15px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;opacity:.9}
+  .wordmark{font-size:38px;font-weight:800;letter-spacing:-.02em;margin-top:6px}
+  .hero-mid{margin-top:54px}
+  .why-big{font-size:54px;font-weight:800;line-height:1.07;letter-spacing:-.025em;max-width:1030px;margin:14px 0 12px}
+  .why-big .hl{color:#9fe9dc}
+  .why-sub{font-size:25px;opacity:.93;font-weight:600}
+  .thoughts{display:flex;gap:14px;margin-top:34px}
+  .thought{font-size:17px;font-weight:600;background:rgba(255,255,255,.12);border:1px dashed rgba(255,255,255,.42);border-radius:999px;padding:11px 19px}
+  .thought.f2{opacity:.68}.thought.f3{opacity:.42}
+
+  /* ===== SLIDE 2 — WHAT (loop) ===== */
+  .loop{display:flex;align-items:stretch;justify-content:center;gap:0;margin-top:34px}
+  .lnode{flex:1;max-width:250px;text-align:center;padding:10px 8px}
+  .lnode .disc{width:108px;height:108px;border-radius:30px;margin:0 auto 16px;display:grid;place-items:center;font-size:48px;box-shadow:var(--shadow)}
+  .lnode h4{font-size:21px;font-weight:800;margin-bottom:5px}
+  .lnode p{font-size:15.5px;color:var(--muted);line-height:1.35}
+  .d1{background:var(--violet-soft);border:1.5px solid #d3c6ff}
+  .d2{background:#f0eee9;border:1.5px solid #ded9cd}
+  .d3{background:var(--teal-soft);border:1.5px solid #b6e0da}
+  .d4{background:var(--green-soft);border:1.5px solid #b6e3cd}
+  .larrow{display:flex;align-items:center;font-size:36px;color:#c9c4d6;font-weight:800;padding:0 2px}
+  .loopnote{text-align:center;margin-top:36px;font-size:18px;font-weight:700;color:var(--violet)}
+
+  /* ===== SLIDE 3 — HOW IT'S WIRED ===== */
+  .s-wire .pad{padding-top:42px}
+  .s-wire .headline{font-size:37px;margin-bottom:4px}
+  .wire{display:flex;align-items:stretch;justify-content:center;gap:0;margin-top:16px}
+  .wcol{display:flex;flex-direction:column;justify-content:center;gap:7px;width:226px}
+  .wnode{border-radius:13px;padding:10px 13px;border:1.6px solid}
+  .wnode .k{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+  .wnode .t{font-weight:800;font-size:15px;margin-top:1px}
+  .wnode .d{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .n-phone{background:#f2efe9;border-color:#ddd8cd}
+  .n-modal{background:var(--violet-soft);border-color:#cbbcff}
+  .n-db{background:#fff;border-color:#bcd2f6}
+  .n-worker{background:var(--teal-soft);border-color:#8fd3ca}
+  .n-page{background:var(--ink2);border-color:var(--ink2);color:#fff}.n-page .d{color:#cfcfd6}.n-page .k{color:#9b9ba6}
+  .wconn{text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding:2px 0}
+  .wbridge{display:flex;flex-direction:column;align-items:center;justify-content:center;width:116px;text-align:center;font-size:12px;font-weight:700;color:var(--blue);padding:0 6px;gap:5px}
+  .wbridge .ar{font-size:22px;color:var(--blue);line-height:1}
+  .step{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:800}
+  .notion-zone{width:322px;border:2px dashed #b7a6ff;background:linear-gradient(180deg,#faf7ff,#eefbf8);border-radius:18px;padding:10px 13px;display:flex;flex-direction:column;justify-content:center}
+  .zone-label{font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--violet);text-align:center;margin-bottom:7px}
+  .modellayer{margin-top:12px;text-align:center;font-size:13.5px;font-weight:600;color:#0a6b58;background:var(--green-soft);border:1px solid #b6e3cd;border-radius:12px;padding:8px 14px}
+  .modellayer b{color:#075c4b}
+  .wcallout{margin-top:9px;text-align:center;font-size:16px;background:var(--violet-soft);border:1px solid #d3c6ff;border-radius:12px;padding:10px 16px}
+  .wcallout b{color:var(--violet)}
+
+  /* ===== SLIDE 4 — LIVE TODAY ===== */
+  .livegrid{display:grid;grid-template-columns:1fr 1fr;gap:15px 22px;margin-top:26px}
+  .live{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:5px solid var(--green);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .live.span2{grid-column:1 / -1}
+  .live .ck{font-size:23px;line-height:1.1}
+  .live h4{font-size:18.5px;font-weight:800;margin-bottom:3px}
+  .live p{font-size:14px;color:var(--muted);line-height:1.4}
+
+  /* ===== SLIDE 5 — VISION ===== */
+  .stair{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:end;margin-top:22px}
+  .hz{border-radius:18px 18px 0 0;padding:18px 17px 20px;color:#fff;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:flex-end}
+  .hz .tag{font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;opacity:.92;margin-bottom:6px}
+  .hz h4{font-size:21px;font-weight:800;line-height:1.1;margin-bottom:6px}
+  .hz p{font-size:14px;line-height:1.4;opacity:.96}
+  .hz1{min-height:150px;background:linear-gradient(180deg,#16b39a,#0d9488)}
+  .hz2{min-height:198px;background:linear-gradient(180deg,#3aa0d6,#2563c9)}
+  .hz3{min-height:246px;background:linear-gradient(180deg,#7a5cff,#5b3df5)}
+  .hz4{min-height:294px;background:linear-gradient(180deg,#8b3df5,#5b1fb0)}
+  .hz .chk{position:absolute;top:14px;right:15px;font-size:11.5px;font-weight:800;background:rgba(255,255,255,.24);border:1px solid rgba(255,255,255,.42);padding:3px 9px;border-radius:999px}
+  .closer{margin-top:24px;text-align:center}
+  .closer .q{font-size:24px;font-weight:800;letter-spacing:-.01em}
+  .closer .m{margin-top:6px;font-size:16px;color:var(--muted);font-weight:600}
+
+  /* ===== SCREEN: scale slides to fit, stack as a deck ===== */
+  @media screen{
+    body{padding:30px 0 50px}
+    .deck{display:flex;flex-direction:column;align-items:center;gap:28px}
+    .stage{width:1280px;height:720px}
+    .slide{transform-origin:top left;border-radius:20px;box-shadow:var(--shadow)}
+  }
+  /* ===== PRINT: one slide per page, full bleed ===== */
+  @page{size:1280px 720px;margin:0}
+  @media print{
+    body{background:#fff;padding:0}
+    .deck{display:block;gap:0}
+    .stage{width:1280px!important;height:720px!important}
+    .slide{transform:none!important;border-radius:0;box-shadow:none;page-break-after:always;break-after:page}
+    .slide:last-child{page-break-after:auto;break-after:auto}
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ============ SLIDE 1 — WHY ============ -->
+  <div class="stage"><section class="slide s-hero">
+    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="pad">
+      <div class="hero-top">
+        <div class="eyebrow">Personal AI · Built on Notion</div>
+        <div class="wordmark">Idea Companion</div>
+      </div>
+      <div class="hero-mid">
+        <div class="kick light">Why I built this</div>
+        <h2 class="why-big">Your best thinking happens <span class="hl">in motion, away from a keyboard.</span></h2>
+        <div class="why-sub">By the time you sit down, the idea is gone.</div>
+        <div class="thoughts">
+          <span class="thought f1">💡 a question worth chasing</span>
+          <span class="thought f2">💡 a connection you spotted</span>
+          <span class="thought f3">💡 gone</span>
+        </div>
+      </div>
+    </div>
+    <footer class="sfoot light"><span>Idea Companion</span><span class="pgn">01 / 04</span></footer>
+  </section></div>
+
+  <!-- ============ SLIDE 2 — WHAT I BUILT ============ -->
+  <div class="stage"><section class="slide">
+    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="pad">
+      <div class="kick t">What I built</div>
+      <h2 class="headline">A loop that turns a conversation into a lesson you keep.</h2>
+      <div class="sub">Notion becomes the brain of a personal AI that compounds everything you learn.</div>
+      <div class="loop">
+        <div class="lnode"><div class="disc d1">🎙️</div><h4>Speak</h4><p>Talk to a tutor, hands-free, on a walk</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d2">🗄️</div><h4>Notion captures</h4><p>The walk becomes structured memory</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d3">📄</div><h4>A lesson builds</h4><p>Concept cards, quiz, sources, images</p></div>
+        <div class="larrow">→</div>
+        <div class="lnode"><div class="disc d4">🎧</div><h4>Study + ask</h4><p>Read it, hear it, question it later</p></div>
+      </div>
+      <div class="loopnote">↻ Every loop compounds. Your knowledge gets deeper, not just longer.</div>
+    </div>
+    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">02 / 04</span></footer>
+  </section></div>
+
+  <!-- ============ SLIDE 3 — HOW IT'S WIRED ============ -->
+  <div class="stage"><section class="slide s-wire">
+    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="pad">
+      <div class="kick b">How it's all wired</div>
+      <h2 class="headline">Two clouds, one Notion brain.</h2>
+      <div class="wire">
+        <!-- capture -->
+        <div class="wcol">
+          <div class="wnode n-phone"><div class="k">On the walk</div><div class="t">📱 Telegram Mini App</div><div class="d">A web app inside Telegram. Mic + live captions in the browser.</div></div>
+          <div class="wconn">↓ voice</div>
+          <div class="wnode n-modal"><div class="k">Cloud A · capture</div><div class="t">☁️ Modal</div><div class="d">Hosts the voice web app (Notion can't), and writes the Notion rows.</div></div>
+        </div>
+        <div class="wbridge"><span class="step">①</span><span class="ar">→</span><span>writes Conversation + Report rows</span></div>
+        <!-- NOTION zone -->
+        <div class="notion-zone">
+          <div class="zone-label">🗄️ Notion — the brain (Cloud B lives here)</div>
+          <div class="wnode n-db"><div class="k">Source of truth</div><div class="t">Conversations + Reports DBs</div><div class="d">Your memory, plus a status board for each lesson.</div></div>
+          <div class="wconn">↓ <span class="step">②</span> signed webhook</div>
+          <div class="wnode n-worker"><div class="k">Builder · inside Notion</div><div class="t">🧩 Notion Worker</div><div class="d">Generates the lesson + image, writes it into the page, flips Status to Ready.</div></div>
+          <div class="wconn">↓ builds the page</div>
+          <div class="wnode n-page"><div class="k">Result</div><div class="t">📄 Ready lesson page</div><div class="d">Summary · concept cards · quiz · cited sources · diagram.</div></div>
+        </div>
+        <div class="wbridge"><span class="step">③</span><span class="ar">→</span><span>link pinged back to your phone</span></div>
+        <!-- return -->
+        <div class="wcol">
+          <div class="wnode n-phone"><div class="k">Back on the phone</div><div class="t">📱 "Ready" + link</div><div class="d">Tap it, the finished Notion lesson opens. Walk to desk, handed off.</div></div>
+        </div>
+      </div>
+      <div class="modellayer">🧠 <b>OpenAI models feed in:</b> Realtime voice (the talk) · gpt-4o-search (current, cited reports) · gpt-image-1 (the diagram)</div>
+      <div class="wcallout">The report builder runs <b>inside Notion's own runtime</b>, so the learning system lives where your knowledge lives. <b>Notion is the product, not just storage.</b></div>
+    </div>
+    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">03 / 04</span></footer>
+  </section></div>
+
+  <!-- ============ SLIDE 4 — VISION ============ -->
+  <div class="stage"><section class="slide">
+    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="pad">
+      <div class="kick v">The vision</div>
+      <h2 class="headline">From a walk, to a week, to a lifetime.</h2>
+      <div class="sub">Today it captures one walk. The same rails grow into a personal intelligence that knows your whole journey.</div>
+      <div class="stair">
+        <div class="hz hz1"><span class="chk">✓ Live</span><div class="tag">Today</div><h4>The Walk</h4><p>Capture and teach. One conversation becomes a lesson you keep.</p></div>
+        <div class="hz hz2"><div class="tag">Next</div><h4>The Week</h4><p>Everything you read, watched, coded, and learned, synthesized into a weekly review you listen to and question on a walk.</p></div>
+        <div class="hz hz3"><div class="tag">Horizon</div><h4>The Year</h4><p>Cross-source insight: what you consumed shaped what you created. A coach that surfaces the right lesson before you need it.</p></div>
+        <div class="hz hz4"><div class="tag">The vision</div><h4>A Lifetime</h4><p>Your second brain: a personal AI that has learned your whole intellectual journey and compounds it, owned by you.</p></div>
+      </div>
+      <div class="closer">
+        <div class="q">Most AI rents you intelligence. This one compounds yours.</div>
+        <div class="m">Your data. Your keys. Your Notion. Growing with you, for life.</div>
+      </div>
+    </div>
+    <footer class="sfoot"><span>Idea Companion · bilingual EN + 中文</span><span class="pgn">04 / 04</span></footer>
+  </section></div>
+
+</div>
+
+<script>
+  // Scale each 16:9 slide to fit the window width (screen review only).
+  function fit(){
+    var vw = document.documentElement.clientWidth;
+    var s = Math.min(1, (vw - 60) / 1280);
+    var stages = document.querySelectorAll('.stage');
+    for (var i=0;i<stages.length;i++){
+      stages[i].style.width = (1280*s)+'px';
+      stages[i].style.height = (720*s)+'px';
+      stages[i].querySelector('.slide').style.transform = 'scale('+s+')';
+    }
+  }
+  window.addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>
