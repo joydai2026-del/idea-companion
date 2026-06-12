@@ -24,8 +24,8 @@
   .sfoot{position:absolute;left:66px;right:66px;bottom:28px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em}
   .sfoot .pgn{font-variant-numeric:tabular-nums}
   .sfoot.light{color:rgba(255,255,255,.82)}
-  .mascot{position:absolute;top:30px;right:34px;width:86px;height:86px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(20,18,12,.20);border:2px solid rgba(255,255,255,.95);z-index:6}
-  .mascot img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block}
+  .mascot{position:absolute;top:28px;right:32px;width:90px;height:90px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(20,18,12,.16);border:1px solid rgba(20,18,12,.07);z-index:6}
+  .mascot img{width:100%;height:100%;object-fit:contain;padding:12px;display:block}
 
   .kick{font-size:15px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--violet)}
   .kick.t{color:var(--teal)} .kick.b{color:var(--blue)} .kick.g{color:var(--green)} .kick.v{color:var(--violet)}
@@ -110,6 +110,17 @@
   .closer .q{font-size:24px;font-weight:800;letter-spacing:-.01em}
   .closer .m{margin-top:6px;font-size:16px;color:var(--muted);font-weight:600}
 
+  /* ===== SLIDE 4 — WHY DIFFERENT ===== */
+  .kick.r{color:#c2255c}
+  .diffgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:26px}
+  .dcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 19px;box-shadow:var(--shadow);border-top:4px solid var(--violet);display:flex;flex-direction:column}
+  .dcard:nth-child(2){border-top-color:var(--teal)}
+  .dcard:nth-child(3){border-top-color:var(--blue)}
+  .dcard .di{font-size:30px;line-height:1}
+  .dcard h4{font-size:20px;font-weight:800;margin:10px 0 6px}
+  .dcard p{font-size:14.5px;color:var(--muted);line-height:1.45;flex:1}
+  .dcard .vs{margin-top:14px;font-size:12.5px;font-weight:700;color:#b0245a;background:#fdeef3;border:1px solid #f6cdda;border-radius:9px;padding:8px 11px;line-height:1.35}
+
   /* ===== SCREEN: scale slides to fit, stack as a deck ===== */
   @media screen{
     body{padding:30px 0 50px}
@@ -133,7 +144,7 @@
 
   <!-- ============ SLIDE 1 — WHY ============ -->
   <div class="stage"><section class="slide s-hero">
-    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="mascot"><img src="assets/robot-flat-icon.png" alt="Idea Companion mascot"></div>
     <div class="pad">
       <div class="hero-top">
         <div class="eyebrow">Personal AI · Built on Notion</div>
@@ -150,12 +161,12 @@
         </div>
       </div>
     </div>
-    <footer class="sfoot light"><span>Idea Companion</span><span class="pgn">01 / 04</span></footer>
+    <footer class="sfoot light"><span>Idea Companion</span><span class="pgn">01 / 05</span></footer>
   </section></div>
 
   <!-- ============ SLIDE 2 — WHAT I BUILT ============ -->
   <div class="stage"><section class="slide">
-    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="mascot"><img src="assets/robot-flat-icon.png" alt="Idea Companion mascot"></div>
     <div class="pad">
       <div class="kick t">What I built</div>
       <h2 class="headline">A loop that turns a conversation into a lesson you keep.</h2>
@@ -171,12 +182,12 @@
       </div>
       <div class="loopnote">↻ Every loop compounds. Your knowledge gets deeper, not just longer.</div>
     </div>
-    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">02 / 04</span></footer>
+    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">02 / 05</span></footer>
   </section></div>
 
   <!-- ============ SLIDE 3 — HOW IT'S WIRED ============ -->
   <div class="stage"><section class="slide s-wire">
-    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="mascot"><img src="assets/robot-flat-icon.png" alt="Idea Companion mascot"></div>
     <div class="pad">
       <div class="kick b">How it's all wired</div>
       <h2 class="headline">Two clouds, one Notion brain.</h2>
@@ -206,12 +217,43 @@
       <div class="modellayer">🧠 <b>OpenAI models feed in:</b> Realtime voice (the talk) · gpt-4o-search (current, cited reports) · gpt-image-1 (the diagram)</div>
       <div class="wcallout">The report builder runs <b>inside Notion's own runtime</b>, so the learning system lives where your knowledge lives. <b>Notion is the product, not just storage.</b></div>
     </div>
-    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">03 / 04</span></footer>
+    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">03 / 05</span></footer>
   </section></div>
 
-  <!-- ============ SLIDE 4 — VISION ============ -->
+  <!-- ============ SLIDE 4 — WHY DIFFERENT ============ -->
   <div class="stage"><section class="slide">
-    <div class="mascot"><img src="assets/mochi-mascot-icon.png" alt="Idea Companion mascot"></div>
+    <div class="mascot"><img src="assets/robot-flat-icon.png" alt="Idea Companion mascot"></div>
+    <div class="pad">
+      <div class="kick r">Why it's different</div>
+      <h2 class="headline">Other voice bots answer and forget. This one is yours to keep.</h2>
+      <div class="sub">Talk to ChatGPT, Claude, or Perplexity and the moment scrolls away inside their app. Idea Companion turns it into memory you own.</div>
+      <div class="diffgrid">
+        <div class="dcard">
+          <div class="di">🧳</div>
+          <h4>Portable, organized memory</h4>
+          <p>Every walk becomes a structured Notion page you own, can organize, search, and take anywhere.</p>
+          <div class="vs">Other bots: your history is trapped in their app.</div>
+        </div>
+        <div class="dcard">
+          <div class="di">⚙️</div>
+          <h4>Auto-built, yet programmable</h4>
+          <p>The lesson writes itself (summary, cards, quiz, sources, image), and because it is your Notion and your code, you decide how it is built.</p>
+          <div class="vs">Other bots: a fixed answer you can't reshape.</div>
+        </div>
+        <div class="dcard">
+          <div class="di">🔀</div>
+          <h4>Model-agnostic and reusable</h4>
+          <p>Swap in any model, and reuse the same memory across your other projects. Never locked to one vendor.</p>
+          <div class="vs">Other bots: locked to one company's model.</div>
+        </div>
+      </div>
+    </div>
+    <footer class="sfoot"><span>Idea Companion</span><span class="pgn">04 / 05</span></footer>
+  </section></div>
+
+  <!-- ============ SLIDE 5 — VISION ============ -->
+  <div class="stage"><section class="slide">
+    <div class="mascot"><img src="assets/robot-flat-icon.png" alt="Idea Companion mascot"></div>
     <div class="pad">
       <div class="kick v">The vision</div>
       <h2 class="headline">From a walk, to a week, to a lifetime.</h2>
@@ -227,7 +269,7 @@
         <div class="m">Your data. Your keys. Your Notion. Growing with you, for life.</div>
       </div>
     </div>
-    <footer class="sfoot"><span>Idea Companion · bilingual EN + 中文</span><span class="pgn">04 / 04</span></footer>
+    <footer class="sfoot"><span>Idea Companion · bilingual EN + 中文</span><span class="pgn">05 / 05</span></footer>
   </section></div>
 
 </div>
