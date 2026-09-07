@@ -2,6 +2,8 @@
 
 Voice tutor plus Notion learning vault for JJ's Notion demo.
 
+![Idea Companion demo: ask a topic by voice, get a finished Notion learning page](docs/idea-companion-demo-v3.gif)
+
 ## Demo Story
 
 Idea Companion turns a walk into a structured Notion learning system:
