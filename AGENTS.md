@@ -20,7 +20,7 @@ Instead of doing the weekly reflection by hand, the system hands back a synthesi
 - **Store + viz:** Notion (weekly review pages, sessions gallery + timeline, patterns DB, shareable Wrapped cards).
 
 ## The plan
-Full plan with diagrams, the audio-layer design, and the roadmap: **`docs/plan.html`**. Decision record: `~/Documents/jj-knowledge-vault/agents/Codex-m4/decisions/2026-06-04-notion-personal-products.md`.
+Full plan with diagrams, the audio-layer design, and the roadmap: **`docs/plan.html`**. The decision record lives in private notes (not in this repo).
 
 ## How to build
 1. `/memory-loader` (mandatory).
@@ -29,7 +29,7 @@ Full plan with diagrams, the audio-layer design, and the roadmap: **`docs/plan.h
 4. Phase 1 = weekly review (read in Notion + NotebookLM listen). Phase 2 = the Realtime voice ask-layer. Cross-source insight needs a few weeks of data before it is meaningful.
 
 ## Open decisions (office-hours)
-- Vault-to-git scope: the whole vault, or just `agents/Codex-m4/{learning-journals, patterns, corrections.md, session-logs}`? (lean: just those.)
+- Vault-to-git scope: the whole vault, or just the agent memory folders (learning journals, patterns, corrections, session logs)? (lean: just those.)
 - Point to JJ's Notion weekly journal page and share it with the integration.
 - Audio default language: EN / 中文 / per week?
 - Listen tools: NotebookLM podcast + Realtime agent (both), or Realtime-only to start? (Realtime is the must.)
