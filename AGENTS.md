@@ -20,7 +20,7 @@ Instead of doing the weekly reflection by hand, the system hands back a synthesi
 - **Store + viz:** Notion (weekly review pages, sessions gallery + timeline, patterns DB, shareable Wrapped cards).
 
 ## The plan
-Full plan with diagrams, the audio-layer design, and the roadmap: **`docs/plan.html`**. Decision record: `~/Documents/jj-knowledge-vault/agents/Codex-m4/decisions/2026-06-04-notion-personal-products.md`.
+Full plan with diagrams, the audio-layer design, and the roadmap: **`docs/plan.html`**. Decision record: the private vault (`agents/Codex-m4/decisions/2026-06-04-notion-personal-products.md`).
 
 ## How to build
 1. `/memory-loader` (mandatory).
