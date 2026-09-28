@@ -6,6 +6,8 @@ Voice tutor plus Notion learning vault for JJ's Notion demo.
 
 **45-second demo video:** [Watch the voice tutor in action](docs/idea-companion-demo.mp4)
 
+https://github.com/user-attachments/assets/ef5ba952-1434-4e48-8919-abce521b1ef0
+
 ## Demo Story
 
 Idea Companion turns a walk into a structured Notion learning system:
