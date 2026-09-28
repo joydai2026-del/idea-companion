@@ -4,9 +4,9 @@ Voice tutor plus Notion learning vault for JJ's Notion demo.
 
 ![Idea Companion demo: ask a topic by voice, get a finished Notion learning page](docs/idea-companion-demo-v3.gif)
 
-**45-second demo video:** [Watch the voice tutor in action](docs/idea-companion-demo.mp4)
+**2-minute narrated demo video:** [Watch the voice tutor in action](docs/idea-companion-demo.mp4)
 
-https://github.com/user-attachments/assets/ef5ba952-1434-4e48-8919-abce521b1ef0
+https://github.com/user-attachments/assets/4707c0ee-abe8-447c-9910-ceff5c3e1dd4
 
 ## Demo Story
 
